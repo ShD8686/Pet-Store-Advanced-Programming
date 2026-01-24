@@ -7,3 +7,6 @@ type PetRepository interface {
 	GetByID(id int) (models.Pet, error)
 	Create(pet models.Pet) error
 }
+type OrderRepository interface {
+	GetAllOrders() ([]models.Order, error)
+}
