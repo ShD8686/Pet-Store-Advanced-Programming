@@ -15,6 +15,7 @@ func NewMockPetRepo() *MockPetRepo {
 			{ID: 1, Name: "Pet1", Category: "Parrot", Price: 100.50, Status: "Available"},
 			{ID: 2, Name: "Pet2", Category: "Cat", Price: 50.00, Status: "Available"},
 			{ID: 3, Name: "Pet3", Category: "Dog", Price: 75.00, Status: "Available"},
+			{ID: 4, Name: "Pet4", Category: "Rabbit", Price: 60.00, Status: "Available"},
 		},
 	}
 }
