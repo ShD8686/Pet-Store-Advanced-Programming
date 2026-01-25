@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"Assignment_3/internal/repository"
+	"Pet_Store/internal/repository"
 	"encoding/json"
 	"net/http"
 )
