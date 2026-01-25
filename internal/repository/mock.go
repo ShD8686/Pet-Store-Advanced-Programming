@@ -7,7 +7,6 @@ import (
 
 type MockPetRepo struct {
 	pets []models.Pet
-	orders []models.Order
 }
 
 func NewMockPetRepo() *MockPetRepo {
@@ -16,9 +15,7 @@ func NewMockPetRepo() *MockPetRepo {
 			{ID: 1, Name: "Pet1", Category: "Parrot", Price: 100.50, Status: "Available"},
 			{ID: 2, Name: "Pet2", Category: "Cat", Price: 50.00, Status: "Available"},
 			{ID: 3, Name: "Pet3", Category: "Dog", Price: 75.00, Status: "Available"},
-		},
-		orders: []models.Order{
-			{ID: 1, UserID: 1, PetID: 1, Total: 100.50},
+			{ID: 4, Name: "Pet4", Category: "Rabbit", Price: 60.00, Status: "Available"},
 		},
 	}
 }
@@ -40,4 +37,3 @@ func (m *MockPetRepo) Create(pet models.Pet) error {
 	m.pets = append(m.pets, pet)
 	return nil
 }
-func (m *MockRepo) GetAllOrders() ([]models.Order, error) { return m.orders, nil }
