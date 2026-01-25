@@ -10,8 +10,10 @@ import (
 func main() {
 	repo := repository.NewMockPetRepo()
 	petHandler := &handlers.PetHandler{Repo: repo}
+	orderHandler := &handlers.OrderHandler{Repo: repo}
 
 	http.HandleFunc("/pets", petHandler.GetPets)
+	http.HandleFunc("/orders", orderHandler.GetOrders)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Welcome to Pet Store API! Use /pets to see the list.")
 	})
