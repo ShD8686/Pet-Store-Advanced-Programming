@@ -12,4 +12,5 @@ type Order struct {
 	ID     int `json:"id"`
 	PetID  int `json:"pet_id"`
 	UserID int `json:"user_id"`
+	Total  float64 `json:"total_price"`
 }
