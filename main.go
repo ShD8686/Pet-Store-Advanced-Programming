@@ -12,7 +12,16 @@ func main() {
 	petHandler := &handlers.PetHandler{Repo: repo}
 	orderHandler := &handlers.OrderHandler{Repo: repo}
 
-	http.HandleFunc("/pets", petHandler.GetPets)
+    http.HandleFunc("/pets", func(w http.ResponseWriter, r *http.Request) {
+    if r.Method == http.MethodGet {
+        petHandler.GetPets(w, r)
+    } else if r.Method == http.MethodPost {
+        petHandler.CreatePet(w, r)
+    } else {
+        http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+    }
+    })
+
 	http.HandleFunc("/orders", orderHandler.GetOrders)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Welcome to Pet Store API! Use /pets to see the list.")
