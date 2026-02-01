@@ -31,7 +31,6 @@ func main() {
 	db.Exec(createTable)
 
 	// 2. Инициализация репозитория и хендлеров
-	// Теперь используем SQL репозиторий вместо Mock
 	petRepo := repository.NewSQLPetRepo(db)
 	petHandler := &handlers.PetHandler{Repo: petRepo}
 
