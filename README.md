@@ -85,3 +85,70 @@ The server will start at http://localhost:8080.
 
 ### Documentation
 All diagrams (Use-Case, ERD, UML, Gantt Chart) and the Project Proposal are located in the docs/ folder.
+
+
+#  Project Milestone 2 (Core System Implementation)
+
+## Pet Store API
+
+This is a small web app where you can manage pets. You can see all pets, add new ones, and check orders. We use Go and SQLite for simplicity.
+
+#### Features
+
+See all pets (GET /pets)
+
+Add a pet (POST /pets)
+
+Check orders (GET /orders) — empty for now
+
+Register a user (POST /register)
+
+Background worker prints status every 30 seconds
+
+## How to run
+
+Clone the project
+
+git clone <our-repo-url>
+cd <project-folder>
+
+
+### Install dependencies
+
+go mod tidy
+go get github.com/mattn/go-sqlite3
+
+
+### Start the server
+
+go run .
+
+
+The server will run at http://localhost:8080.
+
+### API Example
+
+GET /pets — shows all pets
+
+POST /pets — add a new pet
+
+GET /orders — shows all orders (currently empty)
+
+POST /register — register a new user
+
+Project Structure
+Pet_Store/
+├─ internal/
+│  ├─ handlers/      # Handles requests
+│  ├─ models/        # Pet and order data
+│  └─ repository/    # Database functions
+├─ main.go           # Starts the server
+└─ pet_store.db      # SQLite database file
+
+### Notes
+
+SQLite is simple: all data is saved in one file pet_store.db.
+
+Background worker prints status every 30 seconds.
+
+Orders are not implemented yet.
