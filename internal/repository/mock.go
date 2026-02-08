@@ -37,7 +37,3 @@ func (m *MockPetRepo) Create(pet models.Pet) error {
 	m.pets = append(m.pets, pet)
 	return nil
 }
-
-func (m *MockPetRepo) GetAllOrders() ([]models.Order, error) {
-	return []models.Order{}, nil
-}

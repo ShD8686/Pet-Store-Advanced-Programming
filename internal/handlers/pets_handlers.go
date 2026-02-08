@@ -12,12 +12,11 @@ type PetHandler struct {
 }
 
 func (h *PetHandler) GetPets(w http.ResponseWriter, r *http.Request) {
-	pets, err := h.Repo.GetAll()
+	pets, err := h.Repo.GetAllPets() // Имя метода обновлено
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(pets)
 }
@@ -32,7 +31,7 @@ func (h *PetHandler) CreatePet(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	err := h.Repo.Create(p) // Этот метод нужно будет реализовать в SQL репозитории
+	err := h.Repo.CreatePet(p) // Имя метода обновлено
 	if err != nil {
 		http.Error(w, "Failed to create pet", http.StatusInternalServerError)
 		return
