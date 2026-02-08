@@ -10,11 +10,21 @@ import (
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
+	"html/template"
+	_ "html/template"
+	"log"
+	_ "modernc.org/sqlite"
+	"net/http"
+	"os"
+	"time"
 )
+
+var tmpl = template.Must(template.ParseGlob("web/templates/*.html"))
 
 func main() {
 	
 	db, err := sql.Open("sqlite3", "./pet_store.db")
+	db, err := sql.Open("sqlite", "./pet_store.db")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -65,6 +75,52 @@ func main() {
 	http.HandleFunc("/register", userHandler.Register)
 
 	fmt.Println("Server running at http://localhost:8080")
+
+	// Читаем схему из файла
+	schema, err := os.ReadFile("sql/schema.sql")
+	if err == nil {
+		db.Exec(string(schema))
+		fmt.Println("Database schema updated from sql/schema.sql")
+	}
+
+	// Инициализация ОДНОГО репозитория для всех
+	sqlRepo := repository.NewSQLPetRepo(db)
+
+	// Передаем один и тот же sqlRepo в разные хендлеры
+	petHandler := &handlers.PetHandler{Repo: sqlRepo}
+	orderHandler := &handlers.OrderHandler{Repo: sqlRepo}
+
+	// В main.go, там где создаются хендлеры:
+	productHandler := &handlers.ProductHandler{Repo: sqlRepo}
+
+	go func() {
+		for {
+			fmt.Println("[System]: Background check OK.")
+			time.Sleep(1 * time.Minute)
+		}
+	}()
+
+	http.HandleFunc("/view/pets", func(w http.ResponseWriter, r *http.Request) {
+		pets, err := sqlRepo.GetAllPets() // Берем данные из базы
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		// Рендерим HTML и передаем туда список pets
+		tmpl.ExecuteTemplate(w, "index.html", pets)
+	})
+
+	http.HandleFunc("/pets", petHandler.GetPets)
+	http.HandleFunc("/orders", orderHandler.GetOrders)
+	http.HandleFunc("/register", (&handlers.UserHandler{}).Register)
+	// В блоке эндпоинтов:
+	http.HandleFunc("/products", productHandler.GetProducts)
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Pet Store API is running!")
+	})
+
+	fmt.Println("Server starting on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
