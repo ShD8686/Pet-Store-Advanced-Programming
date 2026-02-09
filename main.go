@@ -40,7 +40,6 @@ func main() {
 
 	// В main.go, там где создаются хендлеры:
 	productHandler := &handlers.ProductHandler{Repo: sqlRepo}
-	appointmentHandler := &handlers.AppointmentHandler{Repo: sqlRepo}
 	appHandler := &handlers.AppointmentHandler{Repo: sqlRepo, Tmpl: tmpl}
 	dashHandler := &handlers.DashboardHandler{Repo: sqlRepo, Tmpl: tmpl}
 
@@ -69,8 +68,6 @@ func main() {
 		}
 		tmpl.ExecuteTemplate(w, "products.html", products)
 	})
-
-	http.HandleFunc("/book", appointmentHandler.BookAppointment)
 
 	// Один роут для просмотра и для создания (GET и POST)
 	http.HandleFunc("/view/appointments", appHandler.ManageAppointments)

@@ -5,14 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f21fcc5e-429f-4858-bc17-2fb51d872a4f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/web/templates/appointments.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/handlers/appointment_handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/handlers/appointment_handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/handlers/order_handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/handlers/order_handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/repository/sqlite_pet_repo.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/repository/sqlite_pet_repo.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pet_store.db" beforeDir="false" afterPath="$PROJECT_DIR$/pet_store.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/templates/products.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/templates/products.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,6 +35,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "DefaultGoTemplateProperty": "Go File",
     "DefaultHtmlFileTemplate": "HTML File",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
@@ -53,6 +47,7 @@
     "RunOnceActivity.go.formatter.settings.were.checked": "true",
     "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "main",
     "go.sdk.automatically.set": "true",
     "last_opened_file_path": "C:/Users/User/Documents/AITU/GolandProjects/Pet-Store-Advanced-Programming-main",
