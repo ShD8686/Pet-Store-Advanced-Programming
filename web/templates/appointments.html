@@ -1,0 +1,71 @@
+{{template "base" .}}
+
+{{define "content"}}
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark fw-bold">
+                    <h4 class="mb-0">Запись к ветеринару или няне</h4>
+                </div>
+                <div class="card-body">
+                    <form action="/book" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Тип услуги</label>
+                            <select name="service_type" class="form-select" required>
+                                <option value="Veterinarian">Ветеринар (Осмотр)</option>
+                                <option value="Vaccination">Вакцинация</option>
+                                <option value="Pet-sitting">Няня (Передержка)</option>
+                                <option value="Grooming">Груминг (Стрижка)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Имя питомца</label>
+                            <input type="text" name="pet_name" class="form-control" placeholder="Например: Шарик" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ваше имя</label>
+                            <input type="text" name="owner_name" class="form-control" placeholder="Иван Иванов" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Желаемая дата</label>
+                            <input type="date" name="date" class="form-control" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-warning fw-bold">Записаться на прием</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h4>Текущие записи</h4>
+        <table class="table table-hover mt-3">
+            <thead class="table-light">
+            <tr>
+                <th>Услуга</th>
+                <th>Питомец</th>
+                <th>Владелец</th>
+                <th>Дата</th>
+                <th>Статус</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{range .}}
+                <tr>
+                    <td>{{.ServiceType}}</td>
+                    <td>{{.PetName}}</td>
+                    <td>{{.OwnerName}}</td>
+                    <td>{{.AppointmentDate}}</td>
+                    <td><span class="badge bg-secondary">{{.Status}}</span></td>
+                </tr>
+            {{else}}
+                <tr>
+                    <td colspan="5" class="text-center">Записей пока нет</td>
+                </tr>
+            {{end}}
+            </tbody>
+        </table>
+    </div>
+{{end}}

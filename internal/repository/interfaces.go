@@ -21,4 +21,6 @@ type StoreRepository interface {
 	CreateProduct(product models.Product) error
 	CreateAppointment(app models.Appointment) error
 	GetAllAppointments() ([]models.Appointment, error)
+
+	SearchProducts(query string) ([]models.Product, error)
 }
