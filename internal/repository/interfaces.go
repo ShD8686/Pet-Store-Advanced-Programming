@@ -6,6 +6,8 @@ type PetRepository interface {
 	GetAllPets() ([]models.Pet, error)
 	GetPetsForAdoption() ([]models.Pet, error)
 	CreatePet(pet models.Pet) error
+	CreateUser(u models.User) error
+    GetUserByUsername(username string) (models.User, error)
 }
 
 type OrderRepository interface {

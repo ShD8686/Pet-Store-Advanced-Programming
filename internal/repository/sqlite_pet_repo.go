@@ -3,6 +3,7 @@ package repository
 import (
 	"Pet_Store/internal/models"
 	"database/sql"
+    "golang.org/x/crypto/bcrypt"
 )
 
 type SQLPetRepo struct {
@@ -66,6 +67,19 @@ func (r *SQLPetRepo) GetAllProducts() ([]models.Product, error) {
 		products = append(products, p)
 	}
 	return products, nil
+}
+func (r *SQLPetRepo) CreateUser(u models.User) error {
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+	_, err := r.DB.Exec("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", 
+		u.Username, string(hashedPassword), u.Role)
+	return err
+}
+
+func (r *SQLPetRepo) GetUserByUsername(username string) (models.User, error) {
+	var u models.User
+	err := r.DB.QueryRow("SELECT id, username, password, role FROM users WHERE username = ?", username).
+		Scan(&u.ID, &u.Username, &u.Password, &u.Role)
+	return u, err
 }
 
 // Остальные заглушки для StoreRepository

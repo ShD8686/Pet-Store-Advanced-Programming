@@ -1,0 +1,27 @@
+{{define "content"}}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <div class="card shadow">
+            <div class="card-body">
+                <h2 class="text-center mb-4">Вход в систему</h2>
+                
+                <form action="/login" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Имя пользователя</label>
+                        <input type="text" name="username" class="form-control" placeholder="Введите логин" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Пароль</label>
+                        <input type="password" name="password" class="form-control" placeholder="Введите пароль" required>
+                    </div>
+                    <button type="submit" class="btn btn-warning w-100 fw-bold">Войти</button>
+                </form>
+
+                <div class="mt-3 text-center">
+                    <p class="text-muted">Нет аккаунта? <a href="/register" class="text-warning">Зарегистрироваться</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}

@@ -1,3 +1,10 @@
+CREATE TABLE IF NOT EXISTS users (
+                                     id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                     username TEXT NOT NULL UNIQUE,
+                                     password TEXT NOT NULL,
+                                     role TEXT DEFAULT 'user' -- 'admin' или 'user'
+);
+
 -- Таблица питомцев (Приют / Продажа)
 CREATE TABLE IF NOT EXISTS pets (
                                     id INTEGER PRIMARY KEY AUTOINCREMENT,
