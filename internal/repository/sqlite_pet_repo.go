@@ -69,6 +69,14 @@ func (r *SQLPetRepo) GetAllProducts() ([]models.Product, error) {
 }
 
 // Остальные заглушки для StoreRepository
-func (r *SQLPetRepo) CreateProduct(product models.Product) error        { return nil }
-func (r *SQLPetRepo) CreateAppointment(app models.Appointment) error    { return nil }
+func (r *SQLPetRepo) CreateProduct(product models.Product) error { return nil }
+
+func (r *SQLPetRepo) CreateAppointment(app models.Appointment) error {
+	_, err := r.DB.Exec(`
+		INSERT INTO appointments (service_type, pet_name, owner_name, appointment_date, status) 
+		VALUES (?, ?, ?, ?, ?)`,
+		app.ServiceType, app.PetName, app.OwnerName, app.AppointmentDate, "pending")
+	return err
+}
+
 func (r *SQLPetRepo) GetAllAppointments() ([]models.Appointment, error) { return nil, nil }

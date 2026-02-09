@@ -8,10 +8,11 @@ import (
 	"html/template"
 	_ "html/template"
 	"log"
-	_ "modernc.org/sqlite"
 	"net/http"
 	"os"
 	"time"
+
+	_ "modernc.org/sqlite"
 )
 
 var tmpl = template.Must(template.ParseGlob("web/templates/*.html"))
@@ -39,6 +40,7 @@ func main() {
 
 	// В main.go, там где создаются хендлеры:
 	productHandler := &handlers.ProductHandler{Repo: sqlRepo}
+	appointmentHandler := &handlers.AppointmentHandler{Repo: sqlRepo}
 
 	go func() {
 		for {
@@ -57,6 +59,16 @@ func main() {
 		tmpl.ExecuteTemplate(w, "index.html", pets)
 	})
 
+	http.HandleFunc("/view/products", func(w http.ResponseWriter, r *http.Request) {
+		products, err := sqlRepo.GetAllProducts()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		tmpl.ExecuteTemplate(w, "products.html", products)
+	})
+
+	http.HandleFunc("/book", appointmentHandler.BookAppointment)
 	http.HandleFunc("/pets", petHandler.GetPets)
 	http.HandleFunc("/orders", orderHandler.GetOrders)
 	http.HandleFunc("/register", (&handlers.UserHandler{}).Register)
