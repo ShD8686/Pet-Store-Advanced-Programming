@@ -29,6 +29,13 @@ CREATE TABLE IF NOT EXISTS appointments (
                                             status TEXT DEFAULT 'pending'
 );
 
+CREATE TABLE IF NOT EXISTS orders (
+                                      id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                      pet_id INTEGER,
+                                      user_id INTEGER,
+                                      total_price REAL
+);
+
 -- Наполним начальными данными для теста
 INSERT INTO products (name, category, price, stock, description) VALUES
                                                                      ('Premium Dog Food', 'food', 5500.0, 20, 'High protein food for adult dogs'),

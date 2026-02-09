@@ -41,6 +41,8 @@ func main() {
 	// В main.go, там где создаются хендлеры:
 	productHandler := &handlers.ProductHandler{Repo: sqlRepo}
 	appointmentHandler := &handlers.AppointmentHandler{Repo: sqlRepo}
+	appHandler := &handlers.AppointmentHandler{Repo: sqlRepo, Tmpl: tmpl}
+	dashHandler := &handlers.DashboardHandler{Repo: sqlRepo, Tmpl: tmpl}
 
 	go func() {
 		for {
@@ -69,6 +71,19 @@ func main() {
 	})
 
 	http.HandleFunc("/book", appointmentHandler.BookAppointment)
+
+	// Один роут для просмотра и для создания (GET и POST)
+	http.HandleFunc("/view/appointments", appHandler.ManageAppointments)
+	http.HandleFunc("/book", appHandler.ManageAppointments)
+
+	http.HandleFunc("/view/shelter", func(w http.ResponseWriter, r *http.Request) {
+		pets, _ := sqlRepo.GetPetsForAdoption()
+		// Используем тот же index.html, но передаем только животных из приюта
+		tmpl.ExecuteTemplate(w, "index.html", pets)
+	})
+
+	http.HandleFunc("/buy", orderHandler.BuyProduct)
+	http.HandleFunc("/view/dashboard", dashHandler.ViewDashboard)
 	http.HandleFunc("/pets", petHandler.GetPets)
 	http.HandleFunc("/orders", orderHandler.GetOrders)
 	http.HandleFunc("/register", (&handlers.UserHandler{}).Register)
