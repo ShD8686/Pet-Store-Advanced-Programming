@@ -81,6 +81,24 @@ func main() {
 
 	http.HandleFunc("/buy", orderHandler.BuyProduct)
 	http.HandleFunc("/view/dashboard", dashHandler.ViewDashboard)
+
+	http.HandleFunc("/search", func(w http.ResponseWriter, r *http.Request) {
+		// 1. Получаем текст поиска из URL (например, /search?q=food)
+		query := r.URL.Query().Get("q")
+
+		// 2. Вызываем метод поиска из репозитория
+		// Используем sqlRepo, который у тебя уже инициализирован выше в main
+		foundProducts, err := sqlRepo.SearchProducts(query)
+		if err != nil {
+			http.Error(w, "Ошибка поиска", http.StatusInternalServerError)
+			return
+		}
+
+		// 3. Отправляем результат в тот же шаблон маркетплейса
+		// Он отлично подходит для отображения результатов поиска
+		tmpl.ExecuteTemplate(w, "products.html", foundProducts)
+	})
+
 	http.HandleFunc("/pets", petHandler.GetPets)
 	http.HandleFunc("/orders", orderHandler.GetOrders)
 	http.HandleFunc("/register", (&handlers.UserHandler{}).Register)

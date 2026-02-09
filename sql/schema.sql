@@ -37,9 +37,10 @@ CREATE TABLE IF NOT EXISTS orders (
 );
 
 -- Наполним начальными данными для теста
-INSERT INTO products (name, category, price, stock, description) VALUES
-                                                                     ('Premium Dog Food', 'food', 5500.0, 20, 'High protein food for adult dogs'),
-                                                                     ('Cat Laser Pointer', 'toys', 1200.5, 15, 'Fun interactive toy for cats');
+-- Пример для одного товара
+INSERT OR IGNORE INTO products (id, name, category, price, stock, description) VALUES
+    (1, 'Premium Dog Food', 'food', 5500.0, 20, 'High protein food for adult dogs'),
+    ('Cat Laser Pointer', 'toys', 1200.5, 15, 'Fun interactive toy for cats');
 
 INSERT INTO pets (name, category, price, status, is_for_adoption) VALUES
                                                                       ('Buddy', 'Dog', 0, 'available', 1), -- Собака в приюте

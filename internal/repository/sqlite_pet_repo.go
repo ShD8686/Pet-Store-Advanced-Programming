@@ -154,3 +154,25 @@ func (r *SQLPetRepo) GetUserAppointments(ownerName string) ([]models.Appointment
 	}
 	return apps, nil
 }
+
+func (r *SQLPetRepo) SearchProducts(query string) ([]models.Product, error) {
+	// Ищем товары, где имя или описание совпадает с запросом
+	sqlQuery := "SELECT id, name, category, price, stock, description FROM products WHERE name LIKE ? OR description LIKE ?"
+	searchTerm := "%" + query + "%"
+
+	rows, err := r.DB.Query(sqlQuery, searchTerm, searchTerm)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var products []models.Product
+	for rows.Next() {
+		var p models.Product
+		if err := rows.Scan(&p.ID, &p.Name, &p.Category, &p.Price, &p.Stock, &p.Description); err != nil {
+			return nil, err
+		}
+		products = append(products, p)
+	}
+	return products, nil
+}
