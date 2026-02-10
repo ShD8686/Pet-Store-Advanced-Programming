@@ -1,53 +1,60 @@
 {{template "base" .}}
-
 {{define "content"}}
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card mb-4 shadow-sm text-center py-4">
-                <div class="card-body">
-                    <div class="rounded-circle bg-warning d-inline-block mb-3" style="width: 80px; height: 80px; line-height: 80px; font-size: 2rem;">👤</div>
-                    <h4>{{.UserName}}</h4>
-                    <p class="text-muted">Постоянный клиент</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-8">
-            <h3 class="mb-4">Моя активность</h3>
-
-            <!-- Вкладка: Заказы -->
-            <div class="card mb-4 shadow-sm">
-                <div class="card-header bg-white fw-bold">🛒 История покупок</div>
-                <div class="card-body">
-                    <table class="table small">
-                        <thead><tr><th>ID</th><th>Товар</th><th>Сумма</th></tr></thead>
-                        <tbody>
-                        {{range .Orders}}
-                            <tr><td>#{{.ID}}</td><td>{{.ProductName}}</td><td>{{.Price}} ₸</td></tr>
-                        {{else}}
-                            <tr><td colspan="3" class="text-center">Вы еще ничего не купили</td></tr>
-                        {{end}}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Вкладка: Записи -->
-            <div class="card shadow-sm">
-                <div class="card-header bg-white fw-bold">🩺 Мои записи к врачу</div>
-                <div class="card-body">
-                    <table class="table small">
-                        <thead><tr><th>Услуга</th><th>Питомец</th><th>Дата</th></tr></thead>
-                        <tbody>
-                        {{range .Appointments}}
-                            <tr><td>{{.ServiceType}}</td><td>{{.PetName}}</td><td>{{.AppointmentDate}}</td></tr>
-                        {{else}}
-                            <tr><td colspan="3" class="text-center">Нет активных записей</td></tr>
-                        {{end}}
-                        </tbody>
-                    </table>
-                </div>
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm p-4 text-center">
+            <div class="bg-primary text-white rounded-circle mx-auto mb-3" style="width: 80px; height: 80px; line-height: 80px; font-size: 2rem;">👤</div>
+            <h4 class="fw-bold">{{.UserName}}</h4>
+            <p class="badge bg-success rounded-pill">Premium Client</p>
+            <hr>
+            <div class="text-start small text-muted">
+                <p class="mb-1"><strong>Город:</strong> Астана</p>
+                <p class="mb-0"><strong>Бонусы:</strong> 500 ₸</p>
             </div>
         </div>
     </div>
+
+
+    <div class="col-md-8">
+        <h3 class="fw-bold mb-4">Активность пользователя {{.UserName}}</h3>
+        
+
+        <div class="card shadow-sm mb-4 p-4">
+            <h5 class="fw-bold mb-3">🛒 Мои покупки</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="table-light"><tr><th>ID</th><th>Товар</th><th>Сумма</th></tr></thead>
+                    <tbody>
+                        {{range .Orders}}
+                        <tr><td>#{{.ID}}</td><td class="fw-bold">{{.ProductName}}</td><td>{{.Price}} ₸</td></tr>
+                        {{else}}
+                        <tr><td colspan="3" class="text-center py-4">Вы еще ничего не заказывали</td></tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card shadow-sm p-4">
+            <h5 class="fw-bold mb-3">🩺 Записи к специалистам</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="table-light"><tr><th>Услуга</th><th>Питомец</th><th>Дата</th><th>Статус</th></tr></thead>
+                    <tbody>
+                        {{range .Appointments}}
+                        <tr>
+                            <td>{{.ServiceType}}</td>
+                            <td>{{.PetName}}</td>
+                            <td>{{.AppointmentDate}}</td>
+                            <td><span class="badge bg-info text-dark rounded-pill">{{.Status}}</span></td>
+                        </tr>
+                        {{else}}
+                        <tr><td colspan="4" class="text-center py-4">Записей нет</td></tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 {{end}}

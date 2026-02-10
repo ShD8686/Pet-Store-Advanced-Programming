@@ -6,8 +6,10 @@
         {{range .}}
             <div class="col">
                 <div class="card h-100 shadow-sm border-0 pet-card">
-                    <!-- Добавим заглушку для фото -->
-                    <img src="https://loremflickr.com/320/240/{{.Category}}" class="card-img-top" alt="pet">
+                    <img src="https://loremflickr.com/320/240/{{.Category}}?lock={{.ID}}" 
+                         class="card-img-top" 
+                         alt="pet" 
+                         style="height: 200px; object-fit: cover;">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <h5 class="card-title mb-0">{{.Name}}</h5>

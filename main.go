@@ -6,7 +6,6 @@ import (
 	"database/sql"
 	"fmt"
 	"html/template"
-	_ "html/template"
 	"log"
 	"net/http"
 	"os"
@@ -24,24 +23,26 @@ func main() {
 	}
 	defer db.Close()
 
-	// Читаем схему из файла
 	schema, err := os.ReadFile("sql/schema.sql")
 	if err == nil {
 		db.Exec(string(schema))
 		fmt.Println("Database schema updated from sql/schema.sql")
 	}
 
-	// Инициализация ОДНОГО репозитория для всех
+
 	sqlRepo := repository.NewSQLPetRepo(db)
 
-	// Передаем один и тот же sqlRepo в разные хендлеры
+
 	petHandler := &handlers.PetHandler{Repo: sqlRepo}
 	orderHandler := &handlers.OrderHandler{Repo: sqlRepo}
 
-	// В main.go, там где создаются хендлеры:
+
 	productHandler := &handlers.ProductHandler{Repo: sqlRepo}
 	appHandler := &handlers.AppointmentHandler{Repo: sqlRepo, Tmpl: tmpl}
 	dashHandler := &handlers.DashboardHandler{Repo: sqlRepo, Tmpl: tmpl}
+
+	fs := http.FileServer(http.Dir("./web/static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	go func() {
 		for {
@@ -51,7 +52,7 @@ func main() {
 	}()
 
 	http.HandleFunc("/view/pets", func(w http.ResponseWriter, r *http.Request) {
-		pets, err := sqlRepo.GetAllPets() // Берем данные из базы
+		pets, err := sqlRepo.GetAllPets()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -94,15 +95,13 @@ func main() {
 			return
 		}
 
-		// 3. Отправляем результат в тот же шаблон маркетплейса
-		// Он отлично подходит для отображения результатов поиска
 		tmpl.ExecuteTemplate(w, "products.html", foundProducts)
 	})
 
 	http.HandleFunc("/pets", petHandler.GetPets)
 	http.HandleFunc("/orders", orderHandler.GetOrders)
 	http.HandleFunc("/register", (&handlers.UserHandler{}).Register)
-	// В блоке эндпоинтов:
+
 	http.HandleFunc("/products", productHandler.GetProducts)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
