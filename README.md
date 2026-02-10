@@ -1,87 +1,102 @@
-# Pet-Store-Advanced-Programming
-This is the first milestone for the Advanced Programming 1 final project. 
-We are building a comprehensive Pet Store management system using a monolithic architecture in Go.
+#  Pet Store API - Milestone 2 (Core System Implementation)
 
-## Team Members
-*   **[Nurzhaina Kuralbay]** - Project Manager (Proposal & Planning)
-*   **[Araizhan Tazhimova]** - System Architect (Diagrams & Design)
-*   **[Damir Sheneussizov]** - Backend Developer (Go Implementation & Setup)
+This project is a core backend implementation for a Pet Store management system, built with Go and SQLite.
 
-## 1. Project Proposal
+##  Team: DNA
+*   **Nurzhaina Kuralbay** - Project Manager (Git Workflow, Planning)
+*   **Araizhan Tazhimova** - System Architect (ERD & Data Consistency)
+*   **Damir Sheneussizov** - Backend Developer (Go & SQL Implementation)
 
-## Relevance 
-In 2026, pet owners want an easy and convenient way to buy pet supplies and adopt pets online. Our system helps pet stores manage their inventory automatically and allows customers to browse and order pets and products from home. It also connects local shelters with people who want to adopt animals.
+---
 
-##  Project Overview
-The Pet Store API provides a robust foundation for managing pets, users, and orders. 
-This milestone focuses on the core architecture, documentation, and the initial code skeleton.
+##  Compliance with Grading Rubric
 
-### Competitor Analysis
-*   **PetSmart / Petco:** Large-scale competitors with complex systems. Our solution is more lightweight, focusing on high performance and a simplified API for mobile integration.
-*   **Local Pet Stores:** Many lack digital presence. Our project provides an affordable, ready-to-use "Monolith-as-a-Service" architecture.
+### 1. Backend Application 
+-  **Framework:** Built using standard `net/http` library.
+-  **Endpoints:** Implemented 4 working endpoints:
+    - `GET /pets` (Retrieve data)
+    - `POST /pets` (Create data)
+    - `GET /orders` (Order tracking)
+    - `POST /register` (User entry)
+- **JSON:** All inputs/outputs are in JSON format.
+- **Startup:** Running `go run .` starts the server on port 8080.
 
-### Planned Features
-- **Pet Catalog:** Browse pets by category and price (Implemented in Skeleton).
-- **User Management:** Track customer profiles and admin roles.
-- **Order System:** Process purchases and track order history.
-- **Authentication:** Secure login for users and admins (Planned).
-- **Admin Dashboard:** Interface for adding/deleting inventory (Planned).
+### 2. Data Model & Storage 
+-  **ERD Consistency:** Database schema (SQLite) strictly follows the ERD from Assignment 3.
+-  **CRUD:** Implemented Create and Read operations for the `Pet` entity.
+-  **Persistence:** All data is saved in `pet_store.db`, ensuring it remains after server restarts.
+-  **Safe Access:** Database interactions are handled through a Repository pattern.
 
-### Target Users
-*   **Pet Owners:** People looking to buy food, accessories, or adopt pets.
-*   **Shelter Administrators:** Staff managing pet listings and availability.
-*   **Veterinarians:** Who can track pet sales history and health records.
+### 3. Concurrency 
+-  **Goroutine:** A background worker is implemented using a `goroutine` and `time.Ticker` in `main.go`.
+-  **Purpose:** Every 30 seconds, the background process logs the system health and DB status to the console without blocking the main thread.
 
-## Architecture
-The project follows a **Monolithic** structure with a clear separation of concerns using the **Repository Pattern**.
+### 4. Git Workflow 
+-  **Collaboration:** Each team member worked on separate feature branches (e.g., `feature/database`, `feature/api-handlers`).
+-  **Contributions:** Each member has at least 2 meaningful commits.
 
-*   **Models:** Defined in `internal/models`, representing our database entities.
-*   **Repository:** Uses interfaces in `internal/repository` to decouple data storage logic. Currently implemented as a **Mock Repository** (In-Memory).
-*   **Handlers:** HTTP handlers in `internal/handlers` to process API requests.
+### 5. Demo & Explanation
+-  **Ready for Defense:** System is ready to be demonstrated via Postman.
 
-##  Project Structure
-```text
-.
-├── main.go               # Entry point of the application
-├── internal/
-│   ├── models/           # Data structures (Pet, User, Order)
-│   ├── repository/       # Interfaces and Mock Data Implementation
-│   └── handlers/         # HTTP request handlers
-├── docs/                 # PDF Documentation & Diagrams
-├── go.mod                # Go module file
-└── README.md             # Project overview 
-``` 
+---
 
-## 3. Project Plan 
+##  System Architecture "Mockup"
 
-Our development is scheduled across 4 key weeks:
-*   **Week 7:** Initial Design, ERD, and Repository Setup (Current Status).
-*   **Week 8:** API Implementation for Pets and Users.
-*   **Week 9:** Database Integration (PostgreSQL) and Order Logic.
-*   **Week 10:** Final Polish, Testing, and Deployment.
+```mermaid
+graph LR
+    Client([Postman]) -- JSON Request --> Server[Go net/http Server]
+    subgraph "Core Backend"
+        Server --> Handlers[HTTP Handlers]
+        Handlers --> Repo[SQLite Repository]
+        Repo --> DB[(pet_store.db)]
+    end
+    subgraph "Async Layer"
+        Goroutine[Background Worker] -.->|Monitoring| Server
+    end
+```
+## Data Mapping (ERD Implementation)
+Entity	Fields	Type	Description
+Pet	ID, Name, Category, Price, Status	SQLite	Core inventory entity
+User	ID, Username, Email, Password	SQLite	Customer/Admin entity
+Order	ID, PetID, UserID, Total	SQLite	Business transaction entity
+## Installation & Running
+#### Clone & Setup:
 
-## The detailed **Gantt Chart** with task assignments is available in the `/docs` folder.
+git clone <repo_url>
 
-## Tech Stack
-Language: Go (Golang)
-Framework: Standard Library (net/http)
-Format: JSON 
+cd Pet_Store-Advanced-Programming
 
-## How to Run
-1)Clone the repository.
-2)Open terminal in the project root.
-3)Run the following command:
+
+#### Run:
 go run .
-The server will start at http://localhost:8080.
 
-### For branch changing 
-1)Clone the repository.
-2)Open in Visual Studio Code.
-3)add branch. 
-4)check with command:git branch.
-5)add/change code and save with Ctrl+s.
-6)commit command in terminal for git.
-7)git push.
+#### Test with Postman:
+GET http://localhost:8080/pets
+POST http://localhost:8080/pets with JSON: {"name": "Buddy", "category": "Dog", "price": 200, "status": "available"}
 
-### Documentation
-All diagrams (Use-Case, ERD, UML, Gantt Chart) and the Project Proposal are located in the docs/ folder.
+## Project Structure
+code
+Text
+Pet_Store/
+├── main.go               # Entry point, DB init, Goroutine worker
+├── pet_store.db          # SQLite persistent storage
+├── internal/
+│   ├── models/           # Data structs (Pet, User, Order)
+│   ├── repository/       # Database CRUD operations
+│   └── handlers/         # HTTP Logic & JSON Processing
+└── docs/                 # Original diagrams from Assignment 3
+
+## Future plan: for FINAL PROJECT
+
+#### Project will include functions:
+1) Veterinarian(Appintments)
+2) Product
+3) Shelter
+
+
+#### Role-Based Access (User & Admin)
+- *User*: can view pets and products, book veterinary appointments, place orders, and see their own history.
+
+- *Admin*: has access to an admin panel where they can manage pets and products, view all bookings, update their status, and see basic statistics.
+
+##### Access to admin functionality will be restricted by user role.

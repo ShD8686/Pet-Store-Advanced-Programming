@@ -35,3 +35,10 @@ type Order struct {
 	UserID int     `json:"user_id"`
 	Total  float64 `json:"total_price"`
 }
+
+type User struct {
+	ID       int    `json:"id"`
+	Username string `json:"username"`
+	Password string `json:"-"`
+	Role     string `json:"role"`
+}
