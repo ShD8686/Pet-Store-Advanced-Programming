@@ -1,114 +1,57 @@
 package main
 
 import (
-	"Pet_Store/internal/handlers"
-	"Pet_Store/internal/repository"
 	"database/sql"
 	"fmt"
-	"html/template"
-	_ "html/template"
 	"log"
 	"net/http"
 	"os"
-	"time"
+
+	"Pet_Store/internal/handlers"
+	"Pet_Store/internal/repository"
 
 	_ "modernc.org/sqlite"
 )
 
-var tmpl = template.Must(template.ParseGlob("web/templates/*.html"))
-
 func main() {
-	db, err := sql.Open("sqlite", "./pet_store.db")
+	db, err := sql.Open("sqlite", "./petstore.db")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	// Читаем схему из файла
-	schema, err := os.ReadFile("sql/schema.sql")
-	if err == nil {
-		db.Exec(string(schema))
-		fmt.Println("Database schema updated from sql/schema.sql")
+	petRepo := repository.NewSQLitePetRepository(db)
+	if err := petRepo.Seed(); err != nil {
+		log.Printf("Error seeding data: %v", err)
 	}
 
-	// Инициализация ОДНОГО репозитория для всех
-	sqlRepo := repository.NewSQLPetRepo(db)
+	petsHandler := handlers.NewPetsHandler(petRepo)
+	statsHandler := handlers.NewStatsHandler(petRepo)
+	listingsHandler := handlers.NewListingsHandler(petRepo)
+	pageHandler := handlers.NewPageHandler()
 
-	// Передаем один и тот же sqlRepo в разные хендлеры
-	petHandler := &handlers.PetHandler{Repo: sqlRepo}
-	orderHandler := &handlers.OrderHandler{Repo: sqlRepo}
-
-	// В main.go, там где создаются хендлеры:
-	productHandler := &handlers.ProductHandler{Repo: sqlRepo}
-	appHandler := &handlers.AppointmentHandler{Repo: sqlRepo, Tmpl: tmpl}
-	dashHandler := &handlers.DashboardHandler{Repo: sqlRepo, Tmpl: tmpl}
-
-	go func() {
-		for {
-			fmt.Println("[System]: Background check OK.")
-			time.Sleep(1 * time.Minute)
+	// API
+	http.HandleFunc("/api/pets", handlers.CommonHeadersMiddleware(handlers.LoggerMiddleware(petsHandler.GetPets)))
+	http.HandleFunc("/api/stats", handlers.CommonHeadersMiddleware(handlers.LoggerMiddleware(statsHandler.GetStats)))
+	http.HandleFunc("/api/listings", handlers.CommonHeadersMiddleware(handlers.LoggerMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost {
+			listingsHandler.CreateListing(w, r)
+		} else {
+			listingsHandler.GetListings(w, r)
 		}
-	}()
+	})))
 
-	http.HandleFunc("/view/pets", func(w http.ResponseWriter, r *http.Request) {
-		pets, err := sqlRepo.GetAllPets() // Берем данные из базы
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		// Рендерим HTML и передаем туда список pets
-		tmpl.ExecuteTemplate(w, "index.html", pets)
-	})
+	// HTML Pages
+	http.HandleFunc("/", pageHandler.IndexPage)
+	http.HandleFunc("/info", pageHandler.InfoPage)
+	http.HandleFunc("/stats", pageHandler.StatsPage)
+	http.HandleFunc("/create-ad", pageHandler.CreateAdPage)
 
-	http.HandleFunc("/view/products", func(w http.ResponseWriter, r *http.Request) {
-		products, err := sqlRepo.GetAllProducts()
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		tmpl.ExecuteTemplate(w, "products.html", products)
-	})
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
 
-	// Один роут для просмотра и для создания (GET и POST)
-	http.HandleFunc("/view/appointments", appHandler.ManageAppointments)
-	http.HandleFunc("/book", appHandler.ManageAppointments)
-
-	http.HandleFunc("/view/shelter", func(w http.ResponseWriter, r *http.Request) {
-		pets, _ := sqlRepo.GetPetsForAdoption()
-		// Используем тот же index.html, но передаем только животных из приюта
-		tmpl.ExecuteTemplate(w, "index.html", pets)
-	})
-
-	http.HandleFunc("/buy", orderHandler.BuyProduct)
-	http.HandleFunc("/view/dashboard", dashHandler.ViewDashboard)
-
-	http.HandleFunc("/search", func(w http.ResponseWriter, r *http.Request) {
-		// 1. Получаем текст поиска из URL (например, /search?q=food)
-		query := r.URL.Query().Get("q")
-
-		// 2. Вызываем метод поиска из репозитория
-		// Используем sqlRepo, который у тебя уже инициализирован выше в main
-		foundProducts, err := sqlRepo.SearchProducts(query)
-		if err != nil {
-			http.Error(w, "Ошибка поиска", http.StatusInternalServerError)
-			return
-		}
-
-		// 3. Отправляем результат в тот же шаблон маркетплейса
-		// Он отлично подходит для отображения результатов поиска
-		tmpl.ExecuteTemplate(w, "products.html", foundProducts)
-	})
-
-	http.HandleFunc("/pets", petHandler.GetPets)
-	http.HandleFunc("/orders", orderHandler.GetOrders)
-	http.HandleFunc("/register", (&handlers.UserHandler{}).Register)
-	// В блоке эндпоинтов:
-	http.HandleFunc("/products", productHandler.GetProducts)
-
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Pet Store API is running!")
-	})
-
-	fmt.Println("Server starting on http://localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	fmt.Printf("TAÑBA Server started on port %s...\n", port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

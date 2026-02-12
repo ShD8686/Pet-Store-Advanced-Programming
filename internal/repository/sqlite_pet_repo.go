@@ -3,18 +3,29 @@ package repository
 import (
 	"Pet_Store/internal/models"
 	"database/sql"
+	"time"
 )
 
-type SQLPetRepo struct {
+type SQLitePetRepository struct {
 	DB *sql.DB
 }
 
-func NewSQLPetRepo(db *sql.DB) *SQLPetRepo {
-	return &SQLPetRepo{DB: db}
+func NewSQLitePetRepository(db *sql.DB) *SQLitePetRepository {
+	return &SQLitePetRepository{DB: db}
 }
 
-func (r *SQLPetRepo) GetAllPets() ([]models.Pet, error) {
-	rows, err := r.DB.Query("SELECT id, name, category, price, status FROM pets")
+func (r *SQLitePetRepository) GetAll(status string) ([]models.Pet, error) {
+	query := "SELECT id, chip_number, name, type, gender, breed, status, image_url FROM pets"
+	var rows *sql.Rows
+	var err error
+
+	if status != "" {
+		query += " WHERE status = ?"
+		rows, err = r.DB.Query(query, status)
+	} else {
+		rows, err = r.DB.Query(query)
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -23,156 +34,68 @@ func (r *SQLPetRepo) GetAllPets() ([]models.Pet, error) {
 	var pets []models.Pet
 	for rows.Next() {
 		var p models.Pet
-		if err := rows.Scan(&p.ID, &p.Name, &p.Category, &p.Price, &p.Status); err != nil {
-			return nil, err
-		}
+		rows.Scan(&p.ID, &p.ChipNumber, &p.Name, &p.Type, &p.Gender, &p.Breed, &p.Status, &p.ImageURL)
 		pets = append(pets, p)
 	}
 	return pets, nil
 }
 
-func (r *SQLPetRepo) CreatePet(pet models.Pet) error {
-	_, err := r.DB.Exec("INSERT INTO pets (name, category, price, status) VALUES (?, ?, ?, ?)",
-		pet.Name, pet.Category, pet.Price, pet.Status)
-	return err
+func (r *SQLitePetRepository) GetStats() (models.Stats, error) {
+	var total, cats, dogs int
+	r.DB.QueryRow("SELECT COUNT(*) FROM pets").Scan(&total)
+	r.DB.QueryRow("SELECT COUNT(*) FROM pets WHERE type = 'кошка'").Scan(&cats)
+	r.DB.QueryRow("SELECT COUNT(*) FROM pets WHERE type = 'собака'").Scan(&dogs)
+
+	return models.Stats{
+		TotalRegistered: total,
+		TotalCats:       cats,
+		TotalDogs:       dogs,
+		LastUpdate:      time.Now().Format(time.RFC3339),
+	}, nil
 }
 
-func (r *SQLPetRepo) GetPetsForAdoption() ([]models.Pet, error) {
-	// Фильтруем по полю is_for_adoption
-	rows, err := r.DB.Query("SELECT id, name, category, price, status, description FROM pets WHERE is_for_adoption = 1")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var pets []models.Pet
-	for rows.Next() {
-		var p models.Pet
-		rows.Scan(&p.ID, &p.Name, &p.Category, &p.Price, &p.Status, &p.Description)
-		p.IsForAdoption = true
-		pets = append(pets, p)
-	}
-	return pets, nil
-}
-
-// Реализация для OrderRepository
-func (r *SQLPetRepo) GetAllOrders() ([]models.Order, error) {
-	return nil, nil
-}
-
-func (r *SQLPetRepo) CreateOrder(order models.Order) error {
-	_, err := r.DB.Exec("INSERT INTO orders (pet_id, user_id, total_price) VALUES (?, ?, ?)",
-		order.PetID, order.UserID, order.Total)
-	return err
-}
-
-func (r *SQLPetRepo) GetAllProducts() ([]models.Product, error) {
-	rows, err := r.DB.Query("SELECT id, name, category, price, stock, description FROM products")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var products []models.Product
-	for rows.Next() {
-		var p models.Product
-		if err := rows.Scan(&p.ID, &p.Name, &p.Category, &p.Price, &p.Stock, &p.Description); err != nil {
-			return nil, err
-		}
-		products = append(products, p)
-	}
-	return products, nil
-}
-
-// Остальные заглушки для StoreRepository
-func (r *SQLPetRepo) CreateProduct(product models.Product) error { return nil }
-
-func (r *SQLPetRepo) CreateAppointment(app models.Appointment) error {
+func (r *SQLitePetRepository) CreateListing(l models.Listing) error {
 	_, err := r.DB.Exec(`
-		INSERT INTO appointments (service_type, pet_name, owner_name, appointment_date, status) 
-		VALUES (?, ?, ?, ?, ?)`,
-		app.ServiceType, app.PetName, app.OwnerName, app.AppointmentDate, "pending")
+		INSERT INTO listings (type, pet_type, breed, photo_url, reward, price, has_insurance, description)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+		l.Type, l.PetType, l.Breed, l.PhotoURL, l.Reward, l.Price, l.HasInsurance, l.Description)
 	return err
 }
 
-func (r *SQLPetRepo) GetAllAppointments() ([]models.Appointment, error) {
-	rows, err := r.DB.Query("SELECT id, service_type, pet_name, owner_name, appointment_date, status FROM appointments")
+func (r *SQLitePetRepository) GetListings() ([]models.Listing, error) {
+	rows, err := r.DB.Query("SELECT id, type, pet_type, breed, photo_url, reward, price, has_insurance, description, created_at FROM listings ORDER BY created_at DESC")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var apps []models.Appointment
+	var listings []models.Listing
 	for rows.Next() {
-		var a models.Appointment
-		rows.Scan(&a.ID, &a.ServiceType, &a.PetName, &a.OwnerName, &a.AppointmentDate, &a.Status)
-		apps = append(apps, a)
+		var l models.Listing
+		rows.Scan(&l.ID, &l.Type, &l.PetType, &l.Breed, &l.PhotoURL, &l.Reward, &l.Price, &l.HasInsurance, &l.Description, &l.CreatedAt)
+		listings = append(listings, l)
 	}
-	return apps, nil
+	return listings, nil
 }
 
-// Получить историю заказов с названиями товаров
-func (r *SQLPetRepo) GetUserOrders(userID int) ([]map[string]interface{}, error) {
-	query := `
-		SELECT o.id, p.name, o.total_price 
-		FROM orders o
-		JOIN products p ON o.pet_id = p.id
-		WHERE o.user_id = ?`
-
-	rows, err := r.DB.Query(query, userID)
-	if err != nil {
-		return nil, err
+func (r *SQLitePetRepository) Seed() error {
+	var count int
+	r.DB.QueryRow("SELECT COUNT(*) FROM pets").Scan(&count)
+	if count > 0 {
+		return nil
 	}
-	defer rows.Close()
 
-	var results []map[string]interface{}
-	for rows.Next() {
-		var id int
-		var name string
-		var price float64
-		rows.Scan(&id, &name, &price)
-		results = append(results, map[string]interface{}{
-			"ID": id, "ProductName": name, "Price": price,
-		})
+	seeds := []models.Pet{
+		{ChipNumber: "398010001", Name: "Луна", Type: "кошка", Gender: "female", Breed: "Бенгальская", Status: "lost", ImageURL: "https://images.unsplash.com/photo-1513245543132-31f507417b26?auto=format&fit=crop&w=500&q=80"},
+		{ChipNumber: "398010002", Name: "Арчи", Type: "собака", Gender: "male", Breed: "Золотистый ретривер", Status: "found", ImageURL: "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=500&q=80"},
 	}
-	return results, nil
-}
 
-// Получить записи к врачу по имени владельца (пока у нас нет системы логина по ID)
-func (r *SQLPetRepo) GetUserAppointments(ownerName string) ([]models.Appointment, error) {
-	rows, err := r.DB.Query("SELECT service_type, pet_name, appointment_date, status FROM appointments WHERE owner_name = ?", ownerName)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var apps []models.Appointment
-	for rows.Next() {
-		var a models.Appointment
-		rows.Scan(&a.ServiceType, &a.PetName, &a.AppointmentDate, &a.Status)
-		apps = append(apps, a)
-	}
-	return apps, nil
-}
-
-func (r *SQLPetRepo) SearchProducts(query string) ([]models.Product, error) {
-	// Ищем товары, где имя или описание совпадает с запросом
-	sqlQuery := "SELECT id, name, category, price, stock, description FROM products WHERE name LIKE ? OR description LIKE ?"
-	searchTerm := "%" + query + "%"
-
-	rows, err := r.DB.Query(sqlQuery, searchTerm, searchTerm)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var products []models.Product
-	for rows.Next() {
-		var p models.Product
-		if err := rows.Scan(&p.ID, &p.Name, &p.Category, &p.Price, &p.Stock, &p.Description); err != nil {
-			return nil, err
+	for _, p := range seeds {
+		_, err := r.DB.Exec("INSERT INTO pets (chip_number, name, type, gender, breed, status, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)",
+			p.ChipNumber, p.Name, p.Type, p.Gender, p.Breed, p.Status, p.ImageURL)
+		if err != nil {
+			return err
 		}
-		products = append(products, p)
 	}
-	return products, nil
+	return nil
 }

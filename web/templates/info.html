@@ -1,0 +1,58 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAÑBA - Информация</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
+    </style>
+</head>
+<body>
+<nav class="bg-white border-b h-20 flex items-center">
+    <div class="max-w-7xl mx-auto px-6 w-full flex items-center gap-10">
+        <a href="/" class="flex items-center gap-2">
+            <div class="bg-slate-800 p-1.5 rounded-full"><svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg></div>
+            <span class="text-2xl font-black tracking-tighter text-slate-800">TAÑBA</span>
+        </a>
+        <div class="flex items-center gap-8">
+            <a href="/" class="text-sm font-bold text-slate-500 hover:text-indigo-600">Главная</a>
+            <a href="/info" class="text-sm font-bold text-indigo-600 border-b-2 border-indigo-600 pb-1">Информация</a>
+            <a href="/stats" class="text-sm font-bold text-slate-500 hover:text-indigo-600">Статистика</a>
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-4xl mx-auto px-6 py-16 space-y-12">
+    <h1 class="text-5xl font-black text-slate-900 leading-tight">О проекте TAÑBA</h1>
+
+    <div class="bg-white p-12 rounded-[3rem] shadow-sm border border-slate-200 space-y-8 text-slate-600 text-lg leading-relaxed">
+        <p><strong>TAÑBA</strong> — это национальный портал регистрации и идентификации животных в Казахстане. Наша миссия — создание безопасной среды для питомцев и их владельцев.</p>
+
+        <div class="grid md:grid-cols-2 gap-8 py-4">
+            <div class="space-y-3">
+                <h3 class="font-black text-slate-800 uppercase text-sm">Для владельцев</h3>
+                <ul class="list-disc pl-5 space-y-1 text-sm">
+                    <li>Электронный ветеринарный паспорт</li>
+                    <li>Быстрый поиск при потере</li>
+                    <li>История вакцинаций</li>
+                </ul>
+            </div>
+            <div class="space-y-3">
+                <h3 class="font-black text-slate-800 uppercase text-sm">Для государства</h3>
+                <ul class="list-disc pl-5 space-y-1 text-sm">
+                    <li>Контроль популяции</li>
+                    <li>Эпизоотический мониторинг</li>
+                    <li>Профилактика заболеваний</li>
+                </ul>
+            </div>
+        </div>
+
+        <p class="text-slate-400 text-sm">Система разработана в соответствии с законодательством РК об ответственном обращении с животными.</p>
+    </div>
+</main>
+</body>
+</html>

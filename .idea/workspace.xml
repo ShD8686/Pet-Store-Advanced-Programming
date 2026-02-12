@@ -5,14 +5,33 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f21fcc5e-429f-4858-bc17-2fb51d872a4f" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/internal/handlers/listings_handler.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/handlers/middleware.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/handlers/page_handler.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/handlers/pets_handler.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/internal/handlers/stats_handler.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pet_store.db" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/templates/create-ad.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/templates/info.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/templates/stats.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/handlers/appointment_handler.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/handlers/dashboard_handler.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/handlers/order_handler.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/handlers/pets_handlers.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/handlers/product_handler.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/handlers/users.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/models/models.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/models/models.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/repository/interfaces.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/repository/interfaces.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/internal/repository/mock.go" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/repository/sqlite_pet_repo.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/repository/sqlite_pet_repo.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pet_store.db" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/sql/schema.sql" beforeDir="false" afterPath="$PROJECT_DIR$/sql/schema.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/templates/appointments.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/templates/base.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/templates/dashboard.html" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/web/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/templates/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/templates/products.html" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,10 +74,15 @@
     "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "git-widget-placeholder": "main",
     "go.sdk.automatically.set": "true",
+    "junie.onboarding.icon.badge.shown": "true",
     "last_opened_file_path": "C:/Users/User/Documents/AITU/GolandProjects/Pet-Store-Advanced-Programming-main",
-    "nodejs_package_manager_path": "npm"
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "to.speed.mode.migration.done": "true"
   }
 }]]></component>
   <component name="SharedIndexes">
