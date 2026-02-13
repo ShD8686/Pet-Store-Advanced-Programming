@@ -10,4 +10,11 @@ type PetRepository interface {
 	// Listings methods
 	CreateListing(l models.Listing) error
 	GetListings() ([]models.Listing, error)
+	DeleteListing(id int) error
+
+	// User methods
+	CreateUser(u models.User) error
+	GetUserByEmail(email string) (*models.User, error)
+	DeletePet(id int) error
+	AddPet(p models.Pet) error
 }

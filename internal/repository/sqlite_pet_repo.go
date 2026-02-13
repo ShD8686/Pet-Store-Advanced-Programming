@@ -14,6 +14,46 @@ func NewSQLitePetRepository(db *sql.DB) *SQLitePetRepository {
 	return &SQLitePetRepository{DB: db}
 }
 
+// InitSchema создает таблицы, если они не существуют
+func (r *SQLitePetRepository) InitSchema() error {
+	schema := `
+	CREATE TABLE IF NOT EXISTS pets (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		chip_number TEXT UNIQUE,
+		name TEXT,
+		type TEXT,
+		gender TEXT,
+		breed TEXT,
+		status TEXT,
+		image_url TEXT,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	);
+
+	CREATE TABLE IF NOT EXISTS listings (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		type TEXT NOT NULL,
+		pet_type TEXT NOT NULL,
+		breed TEXT,
+		photo_url TEXT NOT NULL,
+		reward REAL DEFAULT 0,
+		price REAL DEFAULT 0,
+		has_insurance BOOLEAN DEFAULT 0,
+		description TEXT,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	);
+
+	CREATE TABLE IF NOT EXISTS users (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		email TEXT UNIQUE,
+		password TEXT,
+		role TEXT DEFAULT 'user',
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	);`
+
+	_, err := r.DB.Exec(schema)
+	return err
+}
+
 func (r *SQLitePetRepository) GetAll(status string) ([]models.Pet, error) {
 	query := "SELECT id, chip_number, name, type, gender, breed, status, image_url FROM pets"
 	var rows *sql.Rows
@@ -78,8 +118,53 @@ func (r *SQLitePetRepository) GetListings() ([]models.Listing, error) {
 	return listings, nil
 }
 
+func (r *SQLitePetRepository) DeleteListing(id int) error {
+	_, err := r.DB.Exec("DELETE FROM listings WHERE id = ?", id)
+	return err
+}
+
+func (r *SQLitePetRepository) CreateUser(u models.User) error {
+	_, err := r.DB.Exec("INSERT INTO users (email, password, role) VALUES (?, ?, ?)", u.Email, u.Password, u.Role)
+	return err
+}
+
+func (r *SQLitePetRepository) GetUserByEmail(email string) (*models.User, error) {
+	var u models.User
+	err := r.DB.QueryRow("SELECT id, email, password, role FROM users WHERE email = ?", email).Scan(&u.ID, &u.Email, &u.Password, &u.Role)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &u, nil
+}
+
+func (r *SQLitePetRepository) DeletePet(id int) error {
+	_, err := r.DB.Exec("DELETE FROM pets WHERE id = ?", id)
+	return err
+}
+
+func (r *SQLitePetRepository) AddPet(p models.Pet) error {
+	_, err := r.DB.Exec("INSERT INTO pets (chip_number, name, type, gender, breed, status, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)",
+		p.ChipNumber, p.Name, p.Type, p.Gender, p.Breed, p.Status, p.ImageURL)
+	return err
+}
+
 func (r *SQLitePetRepository) Seed() error {
 	var count int
+	// Проверяем наличие пользователей
+	err := r.DB.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
+	if err != nil {
+		return err
+	}
+
+	if count == 0 {
+		// Default admin
+		r.CreateUser(models.User{Email: "admin@tanba.kz", Password: "admin", Role: "admin"})
+		r.CreateUser(models.User{Email: "user@test.kz", Password: "user", Role: "user"})
+	}
+
 	r.DB.QueryRow("SELECT COUNT(*) FROM pets").Scan(&count)
 	if count > 0 {
 		return nil
@@ -91,11 +176,7 @@ func (r *SQLitePetRepository) Seed() error {
 	}
 
 	for _, p := range seeds {
-		_, err := r.DB.Exec("INSERT INTO pets (chip_number, name, type, gender, breed, status, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)",
-			p.ChipNumber, p.Name, p.Type, p.Gender, p.Breed, p.Status, p.ImageURL)
-		if err != nil {
-			return err
-		}
+		r.AddPet(p)
 	}
 	return nil
 }

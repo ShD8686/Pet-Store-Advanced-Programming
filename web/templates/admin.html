@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNA - Админ Панель</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
+    </style>
+</head>
+<body>
+<nav class="bg-slate-900 border-b h-20 flex items-center text-white">
+    <div class="max-w-7xl mx-auto px-6 w-full flex items-center justify-between">
+        <div class="flex items-center gap-10">
+            <a href="/" class="flex items-center gap-2">
+                <div class="bg-indigo-600 p-1.5 rounded-full"><svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg></div>
+                <span class="text-2xl font-black tracking-tighter">DNA ADMIN</span>
+            </a>
+        </div>
+        <button onclick="logout()" class="text-sm font-bold opacity-70 hover:opacity-100">Выйти</button>
+    </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-6 py-12 space-y-12">
+    <h1 class="text-4xl font-black text-slate-800">Управление контентом</h1>
+
+    <section class="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
+        <h2 class="text-2xl font-black mb-6">Объявления пользователей</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                <tr class="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">
+                    <th class="pb-4">Тип</th>
+                    <th class="pb-4">Животное</th>
+                    <th class="pb-4">Описание</th>
+                    <th class="pb-4">Действие</th>
+                </tr>
+                </thead>
+                <tbody id="listings-table">
+                <!-- Сюда попадут объявления -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
+        <h2 class="text-2xl font-black mb-6">Официальный реестр (Все животные)</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                <tr class="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b">
+                    <th class="pb-4">Чип</th>
+                    <th class="pb-4">Кличка</th>
+                    <th class="pb-4">Действие</th>
+                </tr>
+                </thead>
+                <tbody id="pets-table">
+                <!-- Сюда попадут животные -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<script>
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user || user.role !== 'admin') {
+        window.location.href = '/login';
+    }
+
+    async function loadData() {
+        // Load Listings
+        const lRes = await fetch('/api/listings');
+        const listings = await lRes.json();
+        document.getElementById('listings-table').innerHTML = listings.map(l => `
+                <tr class="border-b last:border-0">
+                    <td class="py-4 font-bold text-sm">${l.type}</td>
+                    <td class="py-4 text-sm">${l.pet_type} (${l.breed})</td>
+                    <td class="py-4 text-sm text-slate-400 line-clamp-1 max-w-xs">${l.description}</td>
+                    <td class="py-4">
+                        <button onclick="deleteListing(${l.id})" class="text-rose-500 font-bold text-xs uppercase">Удалить</button>
+                    </td>
+                </tr>
+            `).join('');
+
+        // Load Registry
+        const pRes = await fetch('/api/pets');
+        const pets = await pRes.json();
+        document.getElementById('pets-table').innerHTML = pets.map(p => `
+                <tr class="border-b last:border-0">
+                    <td class="py-4 font-mono text-sm">${p.chip_number}</td>
+                    <td class="py-4 font-bold text-sm">${p.name}</td>
+                    <td class="py-4">
+                        <button onclick="deletePet(${p.id})" class="text-rose-500 font-bold text-xs uppercase">Исключить</button>
+                    </td>
+                </tr>
+            `).join('');
+    }
+
+    async function deleteListing(id) {
+        if (confirm('Удалить объявление?')) {
+            await fetch(`/api/listings?id=${id}`, { method: 'DELETE' });
+            loadData();
+        }
+    }
+
+    async function deletePet(id) {
+        if (confirm('Удалить из реестра?')) {
+            await fetch(`/api/pets?id=${id}`, { method: 'DELETE' });
+            loadData();
+        }
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = '/login';
+    }
+
+    loadData();
+</script>
+</body>
+</html>
