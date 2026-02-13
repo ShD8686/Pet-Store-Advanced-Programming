@@ -1,24 +1,26 @@
 {{template "base" .}}
 
 {{define "content"}}
-    <h2 class="mb-4">Наши питомцы</h2>
+    <h2 class="mb-4">🐾 Наши питомцы ищут дом</h2>
     <div class="row row-cols-1 row-cols-md-3 g-4">
         {{range .}}
             <div class="col">
-                <div class="card h-100 pet-card">
+                <div class="card h-100 shadow-sm border-0 pet-card">
+                    <!-- Добавим заглушку для фото -->
+                    <img src="https://loremflickr.com/320/240/{{.Category}}" class="card-img-top" alt="pet">
                     <div class="card-body">
-                        <h5 class="card-title">{{.Name}}</h5>
-                        <p class="badge bg-info text-dark">{{.Category}}</p>
-                        <p class="card-text text-muted">{{.Description}}</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="price-tag">{{if eq .Price 0.0}}Бесплатно (Приют){{else}}{{.Price}} ₸{{end}}</span>
-                            <button class="btn btn-warning btn-sm">Подробнее</button>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title mb-0">{{.Name}}</h5>
+                            <span class="badge rounded-pill bg-warning text-dark">{{.Category}}</span>
+                        </div>
+                        <p class="card-text text-muted small">{{.Description}}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="fw-bold text-success">{{if eq .Price 0.0}}В добрые руки{{else}}{{.Price}} ₸{{end}}</span>
+                            <a href="#" class="btn btn-outline-primary btn-sm px-4">Познакомиться</a>
                         </div>
                     </div>
                 </div>
             </div>
-        {{else}}
-            <p>К сожалению, питомцев пока нет.</p>
         {{end}}
     </div>
 {{end}}

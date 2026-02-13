@@ -13,6 +13,7 @@ import (
 	"time"
 
 	_ "modernc.org/sqlite" // Используем современный драйвер SQLite
+	_ "modernc.org/sqlite"
 )
 
 // 1. Глобальная переменная для шаблонов (ищет все .html в папке web/templates)
@@ -78,6 +79,8 @@ func main() {
 	petHandler := &handlers.PetHandler{Repo: sqlRepo}
 	orderHandler := &handlers.OrderHandler{Repo: sqlRepo}
 	productHandler := &handlers.ProductHandler{Repo: sqlRepo}
+	appHandler := &handlers.AppointmentHandler{Repo: sqlRepo, Tmpl: tmpl}
+	dashHandler := &handlers.DashboardHandler{Repo: sqlRepo, Tmpl: tmpl}
 
 	// 5. ФОНОВАЯ ЗАДАЧА (Goroutine)
 	go func() {
@@ -114,6 +117,45 @@ func main() {
 	}))
 
 	// --- API эндпоинты (JSON данные) ---
+	http.HandleFunc("/view/products", func(w http.ResponseWriter, r *http.Request) {
+		products, err := sqlRepo.GetAllProducts()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		tmpl.ExecuteTemplate(w, "products.html", products)
+	})
+
+	// Один роут для просмотра и для создания (GET и POST)
+	http.HandleFunc("/view/appointments", appHandler.ManageAppointments)
+	http.HandleFunc("/book", appHandler.ManageAppointments)
+
+	http.HandleFunc("/view/shelter", func(w http.ResponseWriter, r *http.Request) {
+		pets, _ := sqlRepo.GetPetsForAdoption()
+		// Используем тот же index.html, но передаем только животных из приюта
+		tmpl.ExecuteTemplate(w, "index.html", pets)
+	})
+
+	http.HandleFunc("/buy", orderHandler.BuyProduct)
+	http.HandleFunc("/view/dashboard", dashHandler.ViewDashboard)
+
+	http.HandleFunc("/search", func(w http.ResponseWriter, r *http.Request) {
+		// 1. Получаем текст поиска из URL (например, /search?q=food)
+		query := r.URL.Query().Get("q")
+
+		// 2. Вызываем метод поиска из репозитория
+		// Используем sqlRepo, который у тебя уже инициализирован выше в main
+		foundProducts, err := sqlRepo.SearchProducts(query)
+		if err != nil {
+			http.Error(w, "Ошибка поиска", http.StatusInternalServerError)
+			return
+		}
+
+		// 3. Отправляем результат в тот же шаблон маркетплейса
+		// Он отлично подходит для отображения результатов поиска
+		tmpl.ExecuteTemplate(w, "products.html", foundProducts)
+	})
+
 	http.HandleFunc("/pets", petHandler.GetPets)
 	http.HandleFunc("/products", productHandler.GetProducts)
 	http.HandleFunc("/orders", orderHandler.GetOrders)
