@@ -1,102 +1,90 @@
-#  Pet Store API - Milestone 2 (Core System Implementation)
+# DNA — Digital Pet Ecosystem 
 
-This project is a core backend implementation for a Pet Store management system, built with Go and SQLite.
+**DNA** (from Kazakh *DNA* — "mark" or "stamp") is a modern Full Stack platform designed for comprehensive pet registration and owner services. The project bridges the gap between state-level animal identification and private sector needs, such as veterinary care, marketplaces, and lost-and-found services.
 
-##  Team: DNA
-*   **Nurzhaina Kuralbay** - Project Manager (Git Workflow, Planning)
-*   **Araizhan Tazhimova** - System Architect (ERD & Data Consistency)
-*   **Damir Sheneussizov** - Backend Developer (Go & SQL Implementation)
-
----
-
-##  Compliance with Grading Rubric
-
-### 1. Backend Application 
--  **Framework:** Built using standard `net/http` library.
--  **Endpoints:** Implemented 4 working endpoints:
-    - `GET /pets` (Retrieve data)
-    - `POST /pets` (Create data)
-    - `GET /orders` (Order tracking)
-    - `POST /register` (User entry)
-- **JSON:** All inputs/outputs are in JSON format.
-- **Startup:** Running `go run .` starts the server on port 8080.
-
-### 2. Data Model & Storage 
--  **ERD Consistency:** Database schema (SQLite) strictly follows the ERD from Assignment 3.
--  **CRUD:** Implemented Create and Read operations for the `Pet` entity.
--  **Persistence:** All data is saved in `pet_store.db`, ensuring it remains after server restarts.
--  **Safe Access:** Database interactions are handled through a Repository pattern.
-
-### 3. Concurrency 
--  **Goroutine:** A background worker is implemented using a `goroutine` and `time.Ticker` in `main.go`.
--  **Purpose:** Every 30 seconds, the background process logs the system health and DB status to the console without blocking the main thread.
-
-### 4. Git Workflow 
--  **Collaboration:** Each team member worked on separate feature branches (e.g., `feature/database`, `feature/api-handlers`).
--  **Contributions:** Each member has at least 2 meaningful commits.
-
-### 5. Demo & Explanation
--  **Ready for Defense:** System is ready to be demonstrated via Postman.
+### Team Members
+[Nurzhaina Kuralbay] - Project Manager (Proposal & Planning)
+[Araizhan Tazhimova] - System Architect (Diagrams & Design)
+[Damir Sheneussizov] - Backend Developer (Go Implementation & Setup)
 
 ---
 
-##  System Architecture "Mockup"
+##  Tech Stack
 
-```mermaid
-graph LR
-    Client([Postman]) -- JSON Request --> Server[Go net/http Server]
-    subgraph "Core Backend"
-        Server --> Handlers[HTTP Handlers]
-        Handlers --> Repo[SQLite Repository]
-        Repo --> DB[(pet_store.db)]
-    end
-    subgraph "Async Layer"
-        Goroutine[Background Worker] -.->|Monitoring| Server
-    end
+### Backend
+- **Language:** Go (Golang) — chosen for its performance, type safety, and efficient handling of concurrent processes.
+- **Database:** SQLite — a lightweight relational database used via the `modernc.org/sqlite` library (CGO-free), ensuring easy portability.
+- **Architecture:** Clean RESTful API using the standard `net/http` library to demonstrate a deep understanding of core web protocols.
+
+### Frontend
+- **UI/UX:** HTML5 & Tailwind CSS. Features a "breathable" modern design with rounded corners, high-quality typography (Inter font), and a focus on usability.
+- **Client Logic:** Vanilla JavaScript (Fetch API). The frontend behaves like a single-page application (SPA), updating content dynamically without full page reloads.
+- **Icons:** Custom SVG icons for a lightweight and crisp interface.
+
+---
+
+##  Key Features
+
+### 1. Advanced Authentication & Role System
+- **Smart Role Assignment:** The system automatically determines the user's role during registration. If the email contains the substring `admin` (e.g., `admin@tanba.kz`), the account is granted **Administrator** privileges. All other users are registered as standard **Users**.
+- **Session Management:** Uses `localStorage` to persist login states across the application.
+
+### 2. Veterinary Service Management
+- **Online Booking:** A dedicated interface to schedule appointments with specific specialists (Therapist, Surgeon, etc.).
+- **User Dashboard:** Users can track their appointment history and real-time statuses (`pending`, `confirmed`).
+
+### 3. Marketplace (Pet Shop)
+- **Product Catalog:** Items are categorized into Food, Medicine, and Toys.
+- **Dynamic Filtering:** Instant category switching without page refreshes.
+- **Admin Integration:** Any product added via the Admin Dashboard appears instantly in the shop.
+
+### 4. Lost & Found (Classifieds)
+- **Ad Types:** Supports "Lost", "Found", "Sell", and "Give Away".
+- **Reward System:** Users can specify reward amounts for missing pets.
+- **Moderation:** Admins can delete outdated or inappropriate listings.
+
+### 5. Open Data & Real-Time Statistics
+- **Analytics Engine:** Live counters for total registered animals, including breakdown by species (Cats/Dogs) based on the actual database state.
+
+### 6. Community News & Blog
+- **Content Delivery:** A news feed for tips, local event announcements, and vaccination updates.
+
+---
+
+##  Administrative Controls (CMS)
+
+Admins have access to a secure `/admin` area allowing them to:
+- **Manage Registry:** Remove animals from the identification database.
+- **Inventory Management:** Add new products to the shop with pricing and imagery.
+- **Moderation:** Clear the platform of spam or invalid classified ads.
+
+---
+
+##  Project Structure
+
+```text
+.
+├── handlers/           # HTTP Request Logic (Auth, API, Pages)
+├── models/             # Data structures (User, Pet, Product, Listing)
+├── repository/         # Database persistence layer (SQL queries)
+├── web/templates/      # Frontend (HTML pages with Tailwind)
+├── main.go             # Application entry point
+└── petstore.db         # SQLite database file
 ```
-## Data Mapping (ERD Implementation)
-Entity	Fields	Type	Description
-Pet	ID, Name, Category, Price, Status	SQLite	Core inventory entity
-User	ID, Username, Email, Password	SQLite	Customer/Admin entity
-Order	ID, PetID, UserID, Total	SQLite	Business transaction entity
-## Installation & Running
-#### Clone & Setup:
 
-git clone <repo_url>
+---
 
-cd Pet_Store-Advanced-Programming
+##  Getting Started
 
+1. Clone the repository.
+2. Ensure you have **Go 1.18+** installed.
+3. Run the application:
+   ```bash
+   go run main.go
+   ```
+4. Navigate to `http://localhost:8080`.
 
-#### Run:
-go run .
+**Default Admin Credentials:**
+- **Email:** `admin@tanba.kz`
+- **Password:** `admin`
 
-#### Test with Postman:
-GET http://localhost:8080/pets
-POST http://localhost:8080/pets with JSON: {"name": "Buddy", "category": "Dog", "price": 200, "status": "available"}
-
-## Project Structure
-code
-Text
-Pet_Store/
-├── main.go               # Entry point, DB init, Goroutine worker
-├── pet_store.db          # SQLite persistent storage
-├── internal/
-│   ├── models/           # Data structs (Pet, User, Order)
-│   ├── repository/       # Database CRUD operations
-│   └── handlers/         # HTTP Logic & JSON Processing
-└── docs/                 # Original diagrams from Assignment 3
-
-## Future plan: for FINAL PROJECT
-
-#### Project will include functions:
-1) Veterinarian(Appintments)
-2) Product
-3) Shelter
-
-
-#### Role-Based Access (User & Admin)
-- *User*: can view pets and products, book veterinary appointments, place orders, and see their own history.
-
-- *Admin*: has access to an admin panel where they can manage pets and products, view all bookings, update their status, and see basic statistics.
-
-##### Access to admin functionality will be restricted by user role.
