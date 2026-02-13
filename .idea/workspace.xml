@@ -5,23 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f21fcc5e-429f-4858-bc17-2fb51d872a4f" name="Changes" comment="the beginning of a clean slate">
-      <change afterPath="$PROJECT_DIR$/internal/handlers/auth_handler.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/templates/admin.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/templates/login.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/templates/register.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/handlers/page_handler.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/handlers/page_handler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internal/models/models.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/models/models.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/templates/shop.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/repository/interfaces.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/repository/interfaces.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/internal/repository/sqlite_pet_repo.go" beforeDir="false" afterPath="$PROJECT_DIR$/internal/repository/sqlite_pet_repo.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-pet.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/templates/create-ad.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/templates/create-ad.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/templates/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/templates/info.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/templates/info.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/templates/stats.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/templates/stats.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/templates/admin.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/templates/admin.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -14,7 +14,6 @@ func NewSQLitePetRepository(db *sql.DB) *SQLitePetRepository {
 	return &SQLitePetRepository{DB: db}
 }
 
-// InitSchema создает таблицы, если они не существуют
 func (r *SQLitePetRepository) InitSchema() error {
 	schema := `
 	CREATE TABLE IF NOT EXISTS pets (
@@ -48,29 +47,98 @@ func (r *SQLitePetRepository) InitSchema() error {
 		password TEXT,
 		role TEXT DEFAULT 'user',
 		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	);
+
+	CREATE TABLE IF NOT EXISTS products (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT NOT NULL,
+		category TEXT NOT NULL,
+		price REAL NOT NULL,
+		image_url TEXT,
+		description TEXT
+	);
+
+	CREATE TABLE IF NOT EXISTS appointments (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_email TEXT NOT NULL,
+		pet_name TEXT,
+		vet_name TEXT,
+		date TEXT,
+		time TEXT,
+		reason TEXT,
+		status TEXT DEFAULT 'pending'
 	);`
 
 	_, err := r.DB.Exec(schema)
 	return err
 }
 
+func (r *SQLitePetRepository) GetProducts(category string) ([]models.Product, error) {
+	query := "SELECT id, name, category, price, image_url, description FROM products"
+	var rows *sql.Rows
+	var err error
+	if category != "" {
+		query += " WHERE category = ?"
+		rows, err = r.DB.Query(query, category)
+	} else {
+		rows, err = r.DB.Query(query)
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var products []models.Product
+	for rows.Next() {
+		var p models.Product
+		rows.Scan(&p.ID, &p.Name, &p.Category, &p.Price, &p.ImageURL, &p.Description)
+		products = append(products, p)
+	}
+	return products, nil
+}
+
+func (r *SQLitePetRepository) AddProduct(p models.Product) error {
+	_, err := r.DB.Exec(`INSERT INTO products (name, category, price, image_url, description) VALUES (?, ?, ?, ?, ?)`,
+		p.Name, p.Category, p.Price, p.ImageURL, p.Description)
+	return err
+}
+
+func (r *SQLitePetRepository) CreateAppointment(a models.Appointment) error {
+	_, err := r.DB.Exec(`INSERT INTO appointments (user_email, pet_name, vet_name, date, time, reason) VALUES (?, ?, ?, ?, ?, ?)`,
+		a.UserEmail, a.PetName, a.VetName, a.Date, a.Time, a.Reason)
+	return err
+}
+
+func (r *SQLitePetRepository) GetAppointmentsByEmail(email string) ([]models.Appointment, error) {
+	rows, err := r.DB.Query("SELECT id, user_email, pet_name, vet_name, date, time, reason, status FROM appointments WHERE user_email = ?", email)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var apps []models.Appointment
+	for rows.Next() {
+		var a models.Appointment
+		rows.Scan(&a.ID, &a.UserEmail, &a.PetName, &a.VetName, &a.Date, &a.Time, &a.Reason, &a.Status)
+		apps = append(apps, a)
+	}
+	return apps, nil
+}
+
 func (r *SQLitePetRepository) GetAll(status string) ([]models.Pet, error) {
 	query := "SELECT id, chip_number, name, type, gender, breed, status, image_url FROM pets"
 	var rows *sql.Rows
 	var err error
-
 	if status != "" {
 		query += " WHERE status = ?"
 		rows, err = r.DB.Query(query, status)
 	} else {
 		rows, err = r.DB.Query(query)
 	}
-
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-
 	var pets []models.Pet
 	for rows.Next() {
 		var p models.Pet
@@ -85,19 +153,11 @@ func (r *SQLitePetRepository) GetStats() (models.Stats, error) {
 	r.DB.QueryRow("SELECT COUNT(*) FROM pets").Scan(&total)
 	r.DB.QueryRow("SELECT COUNT(*) FROM pets WHERE type = 'кошка'").Scan(&cats)
 	r.DB.QueryRow("SELECT COUNT(*) FROM pets WHERE type = 'собака'").Scan(&dogs)
-
-	return models.Stats{
-		TotalRegistered: total,
-		TotalCats:       cats,
-		TotalDogs:       dogs,
-		LastUpdate:      time.Now().Format(time.RFC3339),
-	}, nil
+	return models.Stats{TotalRegistered: total, TotalCats: cats, TotalDogs: dogs, LastUpdate: time.Now().Format(time.RFC3339)}, nil
 }
 
 func (r *SQLitePetRepository) CreateListing(l models.Listing) error {
-	_, err := r.DB.Exec(`
-		INSERT INTO listings (type, pet_type, breed, photo_url, reward, price, has_insurance, description)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+	_, err := r.DB.Exec(`INSERT INTO listings (type, pet_type, breed, photo_url, reward, price, has_insurance, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
 		l.Type, l.PetType, l.Breed, l.PhotoURL, l.Reward, l.Price, l.HasInsurance, l.Description)
 	return err
 }
@@ -108,7 +168,6 @@ func (r *SQLitePetRepository) GetListings() ([]models.Listing, error) {
 		return nil, err
 	}
 	defer rows.Close()
-
 	var listings []models.Listing
 	for rows.Next() {
 		var l models.Listing
@@ -124,6 +183,9 @@ func (r *SQLitePetRepository) DeleteListing(id int) error {
 }
 
 func (r *SQLitePetRepository) CreateUser(u models.User) error {
+	if u.Role == "" {
+		u.Role = "user"
+	}
 	_, err := r.DB.Exec("INSERT INTO users (email, password, role) VALUES (?, ?, ?)", u.Email, u.Password, u.Role)
 	return err
 }
@@ -153,30 +215,21 @@ func (r *SQLitePetRepository) AddPet(p models.Pet) error {
 
 func (r *SQLitePetRepository) Seed() error {
 	var count int
-	// Проверяем наличие пользователей
-	err := r.DB.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
-	if err != nil {
-		return err
-	}
-
+	r.DB.QueryRow("SELECT COUNT(*) FROM products").Scan(&count)
 	if count == 0 {
-		// Default admin
+		prods := []models.Product{
+			{Name: "Корм Royal Canin (2кг)", Category: "food", Price: 12500, ImageURL: "https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=400&q=80", Description: "Сбалансированный корм для взрослых собак"},
+			{Name: "Витамины Beaphar", Category: "medicine", Price: 4500, ImageURL: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400&q=80", Description: "Комплекс витаминов для кошек"},
+			{Name: "Игрушка-пищалка", Category: "toy", Price: 2200, ImageURL: "https://images.unsplash.com/photo-1576201836106-db1758fd1c97?auto=format&fit=crop&w=400&q=80", Description: "Прочная резиновая игрушка"},
+		}
+		for _, p := range prods {
+			r.DB.Exec("INSERT INTO products (name, category, price, image_url, description) VALUES (?, ?, ?, ?, ?)", p.Name, p.Category, p.Price, p.ImageURL, p.Description)
+		}
+	}
+
+	r.DB.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
+	if count == 0 {
 		r.CreateUser(models.User{Email: "admin@tanba.kz", Password: "admin", Role: "admin"})
-		r.CreateUser(models.User{Email: "user@test.kz", Password: "user", Role: "user"})
-	}
-
-	r.DB.QueryRow("SELECT COUNT(*) FROM pets").Scan(&count)
-	if count > 0 {
-		return nil
-	}
-
-	seeds := []models.Pet{
-		{ChipNumber: "398010001", Name: "Луна", Type: "кошка", Gender: "female", Breed: "Бенгальская", Status: "lost", ImageURL: "https://images.unsplash.com/photo-1513245543132-31f507417b26?auto=format&fit=crop&w=500&q=80"},
-		{ChipNumber: "398010002", Name: "Арчи", Type: "собака", Gender: "male", Breed: "Золотистый ретривер", Status: "found", ImageURL: "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=500&q=80"},
-	}
-
-	for _, p := range seeds {
-		r.AddPet(p)
 	}
 	return nil
 }

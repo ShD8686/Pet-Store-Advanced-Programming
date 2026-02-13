@@ -10,176 +10,76 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
         .btn-primary { background-color: #536DFE; transition: all 0.2s; }
-        .btn-primary:hover { background-color: #4355D1; transform: translateY(-1px); }
         .card { background: white; border-radius: 2rem; border: 1px solid #E2E8F0; transition: all 0.3s; }
         .card:hover { box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
-        .tab-btn { padding: 1rem; font-weight: 700; font-size: 0.875rem; border-radius: 1rem; transition: all 0.2s; }
-        .tab-active { background: #536DFE; color: white; }
-        .badge { font-[900] text-[8px] uppercase tracking-tighter px-2 py-0.5 rounded-md; }
     </style>
 </head>
 <body>
 <nav class="bg-white border-b sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-        <div class="flex items-center gap-10">
+        <div class="flex items-center gap-8">
             <a href="/" class="flex items-center gap-2">
-                <div class="bg-slate-800 p-1.5 rounded-full">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
-                </div>
-                <span class="text-2xl font-black tracking-tighter text-slate-800 text-uppercase">DNA</span>
+                <div class="bg-slate-800 p-1.5 rounded-full"><svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg></div>
+                <span class="text-2xl font-black text-slate-800 tracking-tighter">DNA</span>
             </a>
-            <div class="hidden md:flex items-center gap-8">
+            <div class="hidden md:flex items-center gap-6">
                 <a href="/" class="text-sm font-bold text-indigo-600">Главная</a>
-                <a href="/info" class="text-sm font-bold text-slate-500 hover:text-indigo-600">Информация</a>
+                <a href="/vet" class="text-sm font-bold text-slate-500 hover:text-indigo-600">Ветеринария</a>
+                <a href="/shop" class="text-sm font-bold text-slate-500 hover:text-indigo-600">Магазин</a>
                 <a href="/stats" class="text-sm font-bold text-slate-500 hover:text-indigo-600">Статистика</a>
-                <a href="/admin" id="admin-link" class="hidden text-sm font-bold text-rose-500 hover:text-rose-600">Админ-панель</a>
             </div>
         </div>
         <div class="flex items-center gap-4">
-            <a href="/create-ad" id="create-ad-btn" class="hidden bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all">+ Подать объявление</a>
+            <a href="/create-ad" id="create-ad-btn" class="hidden bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm">+ Объявление</a>
             <button onclick="handleAuthClick()" id="login-btn" class="btn-primary text-white px-6 py-2.5 rounded-xl font-bold text-sm">Войти</button>
         </div>
     </div>
 </nav>
 
-<main class="max-w-7xl mx-auto px-6 py-10 space-y-16">
-    <!-- Hero -->
-    <section class="bg-white rounded-[3rem] p-12 shadow-xl shadow-indigo-100/40 flex flex-col lg:flex-row items-center gap-12 border border-indigo-50">
-        <div class="flex-1 space-y-8">
-            <h1 class="text-5xl lg:text-6xl font-black text-slate-900 leading-[1.1]">Найди друга или <br><span class="text-indigo-600">верни его домой.</span></h1>
-            <p class="text-slate-500 text-lg max-w-lg">Первая открытая площадка для владельцев животных в Казахстане.</p>
-            <div id="auth-prompt" class="p-6 bg-slate-50 rounded-3xl border border-dashed border-slate-300">
-                <p class="text-slate-500 font-medium text-sm mb-4">Войдите, чтобы иметь возможность публиковать объявления.</p>
-                <a href="/login" class="text-indigo-600 font-black text-sm uppercase underline">Авторизоваться сейчас</a>
+<main class="max-w-7xl mx-auto px-6 py-12 space-y-16">
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+        <div class="space-y-6">
+            <h1 class="text-6xl font-black text-slate-900 leading-tight">Забота о питомце <br><span class="text-indigo-600">в один клик.</span></h1>
+            <p class="text-slate-500 text-lg">Единая платформа для регистрации, поиска, лечения и покупок для ваших четвероногих друзей.</p>
+            <div class="flex gap-4">
+                <a href="/vet" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black text-sm shadow-lg shadow-indigo-200">Записаться к врачу</a>
+                <a href="/shop" class="bg-white border-2 border-slate-100 text-slate-800 px-8 py-4 rounded-2xl font-black text-sm">В магазин</a>
             </div>
         </div>
-        <div class="flex-1">
-            <img src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=800&q=80" class="rounded-[2.5rem] shadow-2xl" alt="Hero">
-        </div>
+        <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=800&q=80" class="rounded-[3rem] shadow-2xl">
     </section>
 
-    <!-- OLX Listings Section -->
     <section class="space-y-8">
-        <div class="flex items-end justify-between">
-            <div>
-                <h2 class="text-3xl font-black text-slate-800">Объявления сообщества</h2>
-                <p class="text-slate-400 font-medium">Свежие публикации от пользователей</p>
-            </div>
-        </div>
-        <div id="listings-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            <!-- Сюда подгрузятся объявления -->
-        </div>
-    </section>
-
-    <!-- Official Registry -->
-    <section class="space-y-8 pt-10 border-t">
-        <h2 class="text-3xl font-black text-slate-800">Официальный реестр</h2>
-        <div class="card overflow-hidden">
-            <div class="flex bg-slate-50 p-1.5">
-                <button onclick="loadPets('lost', this)" class="tab-btn flex-1 tab-active">Потерянные</button>
-                <button onclick="loadPets('found', this)" class="tab-btn flex-1 text-slate-400">Найденные</button>
-            </div>
-            <div id="pet-grid" class="p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div>
-        </div>
+        <h2 class="text-3xl font-black text-slate-800">Последние объявления</h2>
+        <div id="listings-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
     </section>
 </main>
 
 <script>
     function handleAuthClick() {
         if (localStorage.getItem('user')) {
-            if (confirm('Выйти из аккаунта?')) {
-                localStorage.clear();
-                window.location.reload();
-            }
-        } else {
-            window.location.href = '/login';
-        }
+            if (confirm('Выйти?')) { localStorage.clear(); location.reload(); }
+        } else { location.href = '/login'; }
     }
-
     function updateUI() {
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-            const user = JSON.parse(userStr);
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user) {
             document.getElementById('create-ad-btn').classList.remove('hidden');
             document.getElementById('login-btn').innerText = user.email.split('@')[0];
-            document.getElementById('admin-link').classList.toggle('hidden', user.role !== 'admin');
-            document.getElementById('auth-prompt').innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <div class="bg-indigo-100 p-3 rounded-full text-indigo-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        </div>
-                        <div>
-                            <p class="font-black text-slate-800">Добро пожаловать, ${user.role === 'admin' ? 'Администратор' : 'Пользователь'}!</p>
-                            <p class="text-xs text-slate-400">Теперь вы можете управлять своими объявлениями</p>
-                        </div>
-                    </div>
-                `;
         }
     }
-
-    async function loadListings() {
-        const grid = document.getElementById('listings-grid');
-        try {
-            const res = await fetch('/api/listings');
-            const listings = await res.json();
-
-            if (!listings || listings.length === 0) {
-                grid.innerHTML = '<div class="col-span-full text-center py-10 text-slate-300 italic">Пока нет объявлений</div>';
-                return;
-            }
-
-            grid.innerHTML = listings.map(l => {
-                let typeLabel = '';
-                let badgeClass = '';
-                let extraInfo = '';
-
-                switch(l.type) {
-                    case 'lost': typeLabel = 'ПОТЕРЯЛСЯ'; badgeClass = 'bg-rose-100 text-rose-600'; if(l.reward) extraInfo = `<p class="text-rose-600 font-black mt-2">Вознагр: ${l.reward} ₸</p>`; break;
-                    case 'sell': typeLabel = 'ПРОДАМ'; badgeClass = 'bg-blue-100 text-blue-600'; extraInfo = `<p class="text-blue-600 font-black mt-2">${l.price} ₸</p>`; break;
-                    case 'give': typeLabel = 'В ДОБРЫЕ РУКИ'; badgeClass = 'bg-emerald-100 text-emerald-600'; break;
-                    case 'found': typeLabel = 'НАЙДЕН'; badgeClass = 'bg-amber-100 text-amber-600'; break;
-                }
-
-                return `
-                        <div class="card p-3 group cursor-pointer hover:scale-[1.02]">
-                            <div class="relative aspect-[4/3] rounded-2xl overflow-hidden mb-4">
-                                <img src="${l.photo_url}" class="w-full h-full object-cover">
-                                <div class="absolute top-2 left-2">
-                                    <span class="badge ${badgeClass}">${typeLabel}</span>
-                                </div>
-                            </div>
-                            <div class="px-2 pb-2">
-                                <h3 class="font-black text-slate-800 line-clamp-1">${l.pet_type === 'dog' ? 'Собака' : 'Кошка'}, ${l.breed || 'Метис'}</h3>
-                                ${extraInfo}
-                                <p class="text-xs text-slate-400 mt-2 line-clamp-2">${l.description}</p>
-                            </div>
-                        </div>
-                    `;
-            }).join('');
-        } catch (e) { console.error(e); }
-    }
-
-    async function loadPets(status, btn) {
-        if (btn) {
-            const buttons = btn.parentElement.querySelectorAll('button');
-            buttons.forEach(b => b.className = 'tab-btn flex-1 text-slate-400');
-            btn.className = 'tab-btn flex-1 tab-active';
-        }
-        const grid = document.getElementById('pet-grid');
-        grid.innerHTML = '<div class="col-span-full text-center py-10 text-slate-300">Загрузка...</div>';
-        const res = await fetch(`/api/pets?status=${status}`);
-        const pets = await res.json();
-        grid.innerHTML = pets.map(p => `
-                <div class="opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all">
-                    <img src="${p.image_url}" class="w-full aspect-square object-cover rounded-2xl mb-2">
-                    <p class="font-black text-xs text-slate-800 text-center">${p.name}</p>
+    async function load() {
+        const res = await fetch('/api/listings');
+        const data = await res.json();
+        document.getElementById('listings-grid').innerHTML = data.map(l => `
+                <div class="card p-4">
+                    <img src="${l.photo_url}" class="w-full aspect-square object-cover rounded-xl mb-4">
+                    <h3 class="font-black text-slate-800">${l.type.toUpperCase()}</h3>
+                    <p class="text-sm text-slate-400 mt-2">${l.description}</p>
                 </div>
             `).join('');
     }
-
-    updateUI();
-    loadListings();
-    loadPets('lost', null);
+    updateUI(); load();
 </script>
 </body>
 </html>
