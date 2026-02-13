@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNA - Статистика</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
+        .nav-link { font-size: 0.875rem; font-weight: 700; transition: color 0.2s; }
+        .nav-link.active { color: #536DFE; }
+        .nav-link:not(.active) { color: #94A3B8; }
+        .nav-link:hover { color: #536DFE; }
+    </style>
+</head>
+<body>
+<nav class="bg-white border-b sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div class="flex items-center gap-12">
+            <a href="/" class="flex items-center gap-2">
+                <div class="bg-slate-900 p-1.5 rounded-full"><svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg></div>
+                <span class="text-2xl font-black text-slate-900 tracking-tighter">DNA</span>
+            </a>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="/" class="nav-link">Главная</a>
+                <a href="/vet" class="nav-link">Ветеринария</a>
+                <a href="/shop" class="nav-link">Магазин</a>
+                <a href="/stats" class="nav-link active">Статистика</a>
+                <a href="/info" class="nav-link">Информация</a>
+            </div>
+        </div>
+    </div>
+</nav>
+<main class="max-w-7xl mx-auto px-6 py-20 space-y-16">
+    <div class="text-center space-y-4">
+        <h1 class="text-7xl font-black text-slate-900 tracking-tight">Открытые данные</h1>
+        <p class="text-slate-400 text-xl font-medium">Статистика регистраций по всей стране в реальном времени</p>
+    </div>
+    <div id="big-stats" class="grid grid-cols-1 md:grid-cols-3 gap-10"></div>
+</main>
+<script>
+    async function loadBigStats() {
+        try {
+            const res = await fetch('/api/stats');
+            const data = await res.json();
+            document.getElementById('big-stats').innerHTML = `
+                    <div class="bg-white p-20 rounded-[4rem] shadow-sm text-center space-y-4 border border-slate-50">
+                        <div class="text-8xl font-black text-indigo-600">${data.total}</div>
+                        <div class="text-slate-400 font-black uppercase text-[10px] tracking-[0.2em]">Всего в базе</div>
+                    </div>
+                    <div class="bg-white p-20 rounded-[4rem] shadow-sm text-center space-y-4 border border-slate-50">
+                        <div class="text-8xl font-black text-slate-900">${data.dogs}</div>
+                        <div class="text-slate-400 font-black uppercase text-[10px] tracking-[0.2em]">Зарегистрировано Собак</div>
+                    </div>
+                    <div class="bg-white p-20 rounded-[4rem] shadow-sm text-center space-y-4 border border-slate-50">
+                        <div class="text-8xl font-black text-slate-900">${data.cats}</div>
+                        <div class="text-slate-400 font-black uppercase text-[10px] tracking-[0.2em]">Зарегистрировано Кошек</div>
+                    </div>
+                `;
+        } catch (err) { console.error(err); }
+    }
+    loadBigStats();
+</script>
+</body>
+</html>

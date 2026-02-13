@@ -9,18 +9,23 @@ type PetRepository interface {
 	CreateUser(u models.User) error
     GetUserByUsername(username string) (models.User, error)
 }
+	GetAll(status string) ([]models.Pet, error)
+	GetStats() (models.Stats, error)
+	Seed() error
 
-type OrderRepository interface {
-	GetAllOrders() ([]models.Order, error)
-	CreateOrder(order models.Order) error
-}
+	CreateListing(l models.Listing) error
+	GetListings() ([]models.Listing, error)
+	DeleteListing(id int) error
 
-// Дополнительный интерфейс для товаров и записей (на будущее)
-type StoreRepository interface {
-	GetAllProducts() ([]models.Product, error)
-	CreateProduct(product models.Product) error
-	CreateAppointment(app models.Appointment) error
-	GetAllAppointments() ([]models.Appointment, error)
+	CreateUser(u models.User) error
+	GetUserByEmail(email string) (*models.User, error)
+	DeletePet(id int) error
+	AddPet(p models.Pet) error
 
-	SearchProducts(query string) ([]models.Product, error)
+	GetProducts(category string) ([]models.Product, error)
+	AddProduct(p models.Product) error
+	CreateAppointment(a models.Appointment) error
+	GetAppointmentsByEmail(email string) ([]models.Appointment, error)
+
+	GetNews() ([]models.News, error)
 }

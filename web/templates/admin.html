@@ -1,0 +1,119 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNA - Админ Панель</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }</style>
+</head>
+<body>
+<nav class="bg-slate-900 text-white h-20 flex items-center px-6">
+    <a href="/" class="text-2xl font-black">DNA <span class="text-indigo-400">ADMIN</span></a>
+    <div class="ml-auto flex gap-4">
+        <a href="/shop" class="text-sm font-bold opacity-70">В магазин</a>
+        <button onclick="localStorage.clear(); location.href='/login'" class="text-sm font-bold text-rose-400">Выйти</button>
+    </div>
+</nav>
+<main class="max-w-7xl mx-auto px-6 py-12 space-y-12">
+    <h1 class="text-4xl font-black text-slate-800">Дашборд управления</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <!-- Списки контента -->
+        <div class="lg:col-span-2 space-y-8">
+            <div class="bg-white rounded-[2.5rem] p-8 border shadow-sm">
+                <h2 class="text-xl font-black mb-6 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l4 4v10a2 2 0 01-2 2z"></path></svg>
+                    Объявления пользователей
+                </h2>
+                <div id="listings-container" class="space-y-3"></div>
+            </div>
+
+            <div class="bg-white rounded-[2.5rem] p-8 border shadow-sm">
+                <h2 class="text-xl font-black mb-6 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    Реестр чипированных животных
+                </h2>
+                <div id="pets-container" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <!-- Форма добавления товара -->
+        <div class="lg:col-span-1">
+            <div class="bg-indigo-600 text-white rounded-[2.5rem] p-8 shadow-xl sticky top-24">
+                <h2 class="text-2xl font-black mb-6">Добавить товар</h2>
+                <form id="product-form" class="space-y-4">
+                    <div>
+                        <label class="text-[10px] font-black uppercase opacity-60">Название</label>
+                        <input type="text" id="p_name" required class="w-full p-3 rounded-xl bg-indigo-700 border-none text-white placeholder-indigo-300">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black uppercase opacity-60">Категория</label>
+                        <select id="p_cat" class="w-full p-3 rounded-xl bg-indigo-700 border-none text-white">
+                            <option value="food">Корм</option>
+                            <option value="medicine">Лекарства</option>
+                            <option value="toy">Игрушки</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black uppercase opacity-60">Цена (₸)</label>
+                        <input type="number" id="p_price" required class="w-full p-3 rounded-xl bg-indigo-700 border-none text-white">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black uppercase opacity-60">URL изображения</label>
+                        <input type="url" id="p_img" required class="w-full p-3 rounded-xl bg-indigo-700 border-none text-white placeholder-indigo-300">
+                    </div>
+                    <button type="submit" class="w-full bg-white text-indigo-600 py-4 rounded-xl font-black mt-4 hover:bg-slate-100 transition-colors">Сохранить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    const u = JSON.parse(localStorage.getItem('user'));
+    if (!u || u.role !== 'admin') window.location.href = '/login';
+
+    async function load() {
+        const lRes = await fetch('/api/listings');
+        const listings = await lRes.json();
+        document.getElementById('listings-container').innerHTML = listings.map(l => `
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <span class="font-bold text-slate-700">${l.type} - ${l.description.substring(0, 30)}...</span>
+                    <button onclick="delL(${l.id})" class="text-xs font-black text-rose-500 bg-rose-50 px-3 py-1.5 rounded-lg">УДАЛИТЬ</button>
+                </div>
+            `).join('');
+
+        const pRes = await fetch('/api/pets');
+        const pets = await pRes.json();
+        document.getElementById('pets-container').innerHTML = pets.map(p => `
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <span class="font-bold text-slate-700">${p.name} (${p.chip_number})</span>
+                    <button onclick="delP(${p.id})" class="text-xs font-black text-rose-500 bg-rose-50 px-3 py-1.5 rounded-lg">ИСКЛЮЧИТЬ</button>
+                </div>
+            `).join('');
+    }
+
+    document.getElementById('product-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const body = {
+            name: p_name.value,
+            category: p_cat.value,
+            price: parseFloat(p_price.value),
+            image_url: p_img.value,
+            description: "Добавлено администратором"
+        };
+        const res = await fetch('/api/products', { method: 'POST', body: JSON.stringify(body) });
+        if (res.ok) {
+            alert('Товар успешно добавлен!');
+            e.target.reset();
+        }
+    };
+
+    async function delL(id) { await fetch(`/api/listings?id=${id}`, { method: 'DELETE' }); load(); }
+    async function delP(id) { await fetch(`/api/pets?id=${id}`, { method: 'DELETE' }); load(); }
+    load();
+</script>
+</body>
+</html>

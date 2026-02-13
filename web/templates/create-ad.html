@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNA - Подать объявление</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
+        .form-card { background: white; border-radius: 2.5rem; border: 1px solid #E2E8F0; padding: 3rem; }
+        input, select, textarea {
+            background: #F1F5F9;
+            border: 1px solid #E2E8F0;
+            padding: 1rem;
+            border-radius: 1rem;
+            outline: none;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        input:focus { border-color: #536DFE; background: white; box-shadow: 0 0 0 4px rgba(83, 109, 254, 0.1); }
+        label { font-size: 0.75rem; font-weight: 800; color: #64748B; text-uppercase; margin-bottom: 0.5rem; display: block; }
+    </style>
+</head>
+<body>
+<nav class="bg-white border-b h-20 flex items-center">
+    <div class="max-w-7xl mx-auto px-6 w-full flex items-center justify-between">
+        <a href="/" class="flex items-center gap-2">
+            <div class="bg-slate-800 p-1.5 rounded-full"><svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg></div>
+            <span class="text-2xl font-black text-slate-800">DNA</span>
+        </a>
+        <a href="/" class="text-sm font-bold text-slate-400 hover:text-rose-500 transition-colors">Отмена</a>
+    </div>
+</nav>
+
+<main class="max-w-3xl mx-auto px-6 py-12">
+    <div class="form-card shadow-2xl shadow-indigo-100/50">
+        <h1 class="text-3xl font-black text-slate-800 mb-10">Новое объявление</h1>
+
+        <form id="ad-form" class="space-y-6">
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <label>Тип объявления</label>
+                    <select id="type" class="w-full" onchange="toggleFields()">
+                        <option value="lost">Потерялся</option>
+                        <option value="sell">Продам</option>
+                        <option value="give">Отдам в добрые руки</option>
+                        <option value="found">Нашел</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Вид животного</label>
+                    <select id="pet_type" class="w-full">
+                        <option value="dog">Собака</option>
+                        <option value="cat">Кошка</option>
+                        <option value="other">Другое</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label>Порода (необязательно)</label>
+                <input type="text" id="breed" class="w-full" placeholder="Напр: Хаски">
+            </div>
+
+            <div>
+                <label>Ссылка на фото (обязательно)</label>
+                <input type="url" id="photo_url" class="w-full" required placeholder="https://example.com/photo.jpg">
+                <p class="text-[10px] text-slate-400 mt-2 font-medium">Для учебного проекта используйте ссылку на картинку из интернета</p>
+            </div>
+
+            <!-- Динамические поля -->
+            <div id="reward-field">
+                <label>Вознаграждение (₸)</label>
+                <input type="number" id="reward" class="w-full" placeholder="0">
+            </div>
+
+            <div id="price-field" class="hidden">
+                <label>Цена (₸)</label>
+                <input type="number" id="price" class="w-full" placeholder="0">
+            </div>
+
+            <div id="insurance-field" class="hidden">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="has_insurance" class="w-5 h-5">
+                    <span>Имеется медстраховка</span>
+                </label>
+            </div>
+
+            <div>
+                <label>Описание</label>
+                <textarea id="description" class="w-full h-32" placeholder="Опишите характер, приметы..."></textarea>
+            </div>
+
+            <button type="submit" class="w-full bg-[#536DFE] text-white py-4 rounded-2xl font-black text-lg shadow-lg shadow-indigo-200 hover:bg-indigo-600 transition-all mt-6">
+                Опубликовать
+            </button>
+        </form>
+    </div>
+</main>
+
+<script>
+    function toggleFields() {
+        const type = document.getElementById('type').value;
+
+        document.getElementById('reward-field').classList.toggle('hidden', type !== 'lost');
+        document.getElementById('price-field').classList.toggle('hidden', type !== 'sell');
+        document.getElementById('insurance-field').classList.toggle('hidden', type !== 'sell' && type !== 'give');
+    }
+
+    document.getElementById('ad-form').onsubmit = async (e) => {
+        e.preventDefault();
+
+        const data = {
+            type: document.getElementById('type').value,
+            pet_type: document.getElementById('pet_type').value,
+            breed: document.getElementById('breed').value,
+            photo_url: document.getElementById('photo_url').value,
+            reward: parseFloat(document.getElementById('reward').value) || 0,
+            price: parseFloat(document.getElementById('price').value) || 0,
+            has_insurance: document.getElementById('has_insurance').checked,
+            description: document.getElementById('description').value
+        };
+
+        try {
+            const res = await fetch('/api/listings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                alert('Объявление успешно создано!');
+                window.location.href = '/';
+            } else {
+                alert('Ошибка при создании');
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    toggleFields();
+</script>
+</body>
+</html>
