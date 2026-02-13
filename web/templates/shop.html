@@ -13,10 +13,24 @@
         .nav-link.active { color: #536DFE; }
         .nav-link:not(.active) { color: #94A3B8; }
         .nav-link:hover { color: #536DFE; }
+
+        #cart-drawer { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* Уведомление (Toast) */
+        #toast {
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform: translateY(100px);
+            opacity: 0;
+        }
+        #toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
     </style>
 </head>
-<body>
-<nav class="bg-white border-b sticky top-0 z-50">
+<body class="relative min-h-screen">
+<!-- Навигация -->
+<nav class="bg-white border-b sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         <div class="flex items-center gap-12">
             <a href="/" class="flex items-center gap-2">
@@ -31,48 +45,302 @@
                 <a href="/info" class="nav-link">Информация</a>
             </div>
         </div>
-        <div id="admin-tools" class="hidden">
-            <a href="/admin" class="bg-slate-900 text-white px-5 py-2.5 rounded-xl text-xs font-black">Управление</a>
+        <div class="flex items-center gap-6">
+            <!-- Корзина в навбаре (теперь заметная!) -->
+            <button onclick="toggleCart(true)" class="relative p-2 text-slate-400 hover:text-indigo-600 transition-colors">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                <span id="nav-cart-count" class="absolute -top-1 -right-1 bg-indigo-600 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white">0</span>
+            </button>
+            <div id="admin-tools" class="hidden">
+                <a href="/admin" class="bg-slate-900 text-white px-5 py-2.5 rounded-xl text-xs font-black">Управление</a>
+            </div>
         </div>
     </div>
 </nav>
-<main class="max-w-7xl mx-auto px-6 py-12 space-y-12">
+
+<main class="max-w-7xl mx-auto px-6 py-12 space-y-12 mb-24">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <h1 class="text-5xl font-black text-slate-900">Маркетплейс</h1>
+        <div>
+            <h1 class="text-5xl font-black text-slate-900 tracking-tight">Маркетплейс</h1>
+            <p class="text-slate-400 mt-2 font-medium">Лучшие товары для вашего питомца</p>
+        </div>
         <div class="flex flex-wrap gap-2">
-            <button onclick="loadProds('')" class="px-6 py-3 bg-indigo-600 text-white rounded-2xl text-sm font-black transition-all">Все</button>
-            <button onclick="loadProds('food')" class="px-6 py-3 bg-white border border-slate-100 rounded-2xl text-sm font-bold text-slate-400 hover:text-indigo-600 transition-all">Корм</button>
-            <button onclick="loadProds('medicine')" class="px-6 py-3 bg-white border border-slate-100 rounded-2xl text-sm font-bold text-slate-400 hover:text-indigo-600 transition-all">Лекарства</button>
-            <button onclick="loadProds('toy')" class="px-6 py-3 bg-white border border-slate-100 rounded-2xl text-sm font-bold text-slate-400 hover:text-indigo-600 transition-all">Игрушки</button>
+            <button onclick="loadProds('')" class="px-6 py-3 bg-indigo-600 text-white rounded-2xl text-sm font-black shadow-lg shadow-indigo-100 transition-all">Все</button>
+            <button onclick="loadProds('food')" class="px-6 py-3 bg-white border border-slate-100 rounded-2xl text-sm font-bold text-slate-400 hover:text-indigo-600 hover:border-indigo-100 transition-all">Корм</button>
+            <button onclick="loadProds('medicine')" class="px-6 py-3 bg-white border border-slate-100 rounded-2xl text-sm font-bold text-slate-400 hover:text-indigo-600 hover:border-indigo-100 transition-all">Лекарства</button>
+            <button onclick="loadProds('toy')" class="px-6 py-3 bg-white border border-slate-100 rounded-2xl text-sm font-bold text-slate-400 hover:text-indigo-600 hover:border-indigo-100 transition-all">Игрушки</button>
         </div>
     </div>
-    <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div>
+
+    <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <!-- Сюда загрузятся товары -->
+    </div>
 </main>
+
+<!-- Плавающая кнопка (дублирует корзину) -->
+<button onclick="toggleCart(true)" class="fixed bottom-8 right-8 bg-indigo-600 text-white p-6 rounded-[2rem] shadow-2xl shadow-indigo-200 z-50 hover:scale-110 transition-transform active:scale-95 group">
+    <div class="relative">
+        <svg class="w-8 h-8 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+        <span id="cart-count-float" class="absolute -top-2 -right-2 bg-rose-500 text-white text-[10px] font-black w-6 h-6 flex items-center justify-center rounded-full border-2 border-white">0</span>
+    </div>
+</button>
+
+<!-- Уведомление -->
+<div id="toast" class="fixed bottom-28 right-8 bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl z-[100] flex items-center gap-3 font-bold">
+    <div class="bg-emerald-500 p-1 rounded-full text-white"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div>
+    Товар в корзине!
+</div>
+
+<!-- Выдвижная панель корзины -->
+<div id="cart-overlay" onclick="toggleCart(false)" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60] hidden transition-opacity duration-300"></div>
+<div id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-[70] transform translate-x-full flex flex-col">
+    <div class="p-8 border-b flex justify-between items-center bg-white sticky top-0">
+        <div>
+            <h2 class="text-2xl font-black text-slate-900">Ваш заказ</h2>
+            <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Проверьте список</p>
+        </div>
+        <button onclick="toggleCart(false)" class="p-2 text-slate-300 hover:text-slate-900 transition-colors"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+    </div>
+    <div id="cart-items" class="flex-grow overflow-y-auto p-8 space-y-6">
+        <!-- Элементы корзины -->
+    </div>
+    <div class="p-8 border-t bg-slate-50 space-y-6">
+        <div class="flex justify-between items-center">
+            <span class="text-slate-400 font-bold">К оплате:</span>
+            <span id="cart-total" class="text-3xl font-black text-indigo-600 tracking-tighter">0 ₸</span>
+        </div>
+        <button onclick="showPayment()" class="w-full bg-slate-900 text-white py-5 rounded-[1.5rem] font-black text-lg hover:bg-indigo-600 transition-all shadow-xl active:scale-95">Перейти к оплате</button>
+    </div>
+</div>
+
+<!-- Модальное окно оплаты -->
+<div id="payment-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-[100] hidden flex items-center justify-center p-6">
+    <div class="bg-white rounded-[3rem] p-10 w-full max-w-md shadow-2xl space-y-8 animate-in fade-in zoom-in duration-300">
+        <div class="flex justify-between items-center">
+            <h2 class="text-3xl font-black text-slate-900">Оплата</h2>
+            <button onclick="closePayment()" class="text-slate-300 hover:text-slate-900"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+        </div>
+
+        <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 p-8 rounded-[2rem] text-white space-y-12 shadow-xl relative overflow-hidden">
+            <div class="flex justify-between items-start">
+                <svg class="w-12 h-12 opacity-80" viewBox="0 0 24 24" fill="currentColor"><path d="M7 18h2V6H7v12zm4 4h2V2h-2v20zm-8-8h2v-4H3v4zm12 4h2V6h-2v12zm4-8v4h2v-4h-2z"/></svg>
+                <span class="font-black text-xl italic opacity-40 uppercase">DNA Card</span>
+            </div>
+            <div id="display-card-number" class="text-2xl font-mono tracking-[0.2em]">•••• •••• •••• ••••</div>
+            <div class="flex justify-between items-end">
+                <div class="space-y-1">
+                    <p class="text-[8px] uppercase font-black opacity-50">Владелец</p>
+                    <p id="display-name" class="font-bold uppercase tracking-wider">USER DNA</p>
+                </div>
+                <div class="text-right space-y-1">
+                    <p class="text-[8px] uppercase font-black opacity-50">Срок</p>
+                    <p class="font-bold">12/28</p>
+                </div>
+            </div>
+        </div>
+
+        <form id="payment-form" class="space-y-4">
+            <div class="space-y-1">
+                <label class="text-[10px] font-black uppercase text-slate-400 ml-2">Номер карты</label>
+                <input type="text" id="card-num" placeholder="0000 0000 0000 0000" maxlength="19" required class="w-full p-4 bg-slate-50 border-none rounded-2xl font-mono font-bold focus:ring-2 focus:ring-indigo-500 transition-all">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black uppercase text-slate-400 ml-2">Срок</label>
+                    <input type="text" placeholder="ММ/ГГ" maxlength="5" required class="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black uppercase text-slate-400 ml-2">CVV</label>
+                    <input type="password" placeholder="***" maxlength="3" required class="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold">
+                </div>
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 text-white py-5 rounded-[1.5rem] font-black text-lg mt-4 shadow-xl shadow-indigo-100 active:scale-95 transition-all">Подтвердить оплату</button>
+        </form>
+    </div>
+</div>
+
 <script>
     const user = JSON.parse(localStorage.getItem('user'));
     if (user && user.role === 'admin') document.getElementById('admin-tools').classList.remove('hidden');
 
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let allProducts = [];
+
     async function loadProds(cat) {
-        const res = await fetch(`/api/products?category=${cat}`);
-        const data = await res.json();
-        document.getElementById('products-grid').innerHTML = data.map(p => `
-                <div class="bg-white p-6 rounded-[3rem] border border-slate-50 hover:shadow-2xl transition-all group relative">
-                    <div class="overflow-hidden rounded-[2rem] mb-6 aspect-square bg-slate-100">
+        const grid = document.getElementById('products-grid');
+        grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-300 font-bold animate-pulse">Загрузка товаров...</div>`;
+
+        try {
+            const res = await fetch(`/api/products?category=${cat}`);
+            allProducts = await res.json();
+            renderProducts();
+        } catch (e) {
+            grid.innerHTML = `<div class="col-span-full py-20 text-center text-rose-500 font-bold">Ошибка загрузки</div>`;
+        }
+    }
+
+    function renderProducts() {
+        const grid = document.getElementById('products-grid');
+        if (allProducts.length === 0) {
+            grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-400 font-bold">Товары не найдены</div>`;
+            return;
+        }
+
+        grid.innerHTML = allProducts.map(p => `
+                <div class="bg-white p-6 rounded-[3rem] border border-slate-50 hover:shadow-2xl hover:-translate-y-2 transition-all group relative">
+                    <div class="overflow-hidden rounded-[2rem] mb-6 aspect-square bg-slate-100 shadow-inner">
                         <img src="${p.image_url}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                     </div>
                     <div class="space-y-1">
-                        <p class="text-[10px] text-slate-300 uppercase font-black tracking-widest">${p.category}</p>
-                        <h3 class="font-black text-slate-900 text-xl">${p.name}</h3>
+                        <p class="text-[10px] text-indigo-400 uppercase font-black tracking-[0.2em]">${p.category}</p>
+                        <h3 class="font-black text-slate-900 text-xl line-clamp-1">${p.name}</h3>
                     </div>
                     <div class="mt-8 flex justify-between items-center">
-                        <span class="text-3xl font-black text-indigo-600">${p.price.toLocaleString()} ₸</span>
-                        <button class="bg-slate-900 text-white w-12 h-12 flex items-center justify-center rounded-2xl hover:bg-indigo-600 transition-colors shadow-lg">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        <span class="text-2xl font-black text-indigo-600 tracking-tighter">${p.price.toLocaleString()} ₸</span>
+                        <button onclick="addToCart(event, ${p.id})" class="bg-slate-900 text-white w-14 h-14 flex items-center justify-center rounded-2xl hover:bg-indigo-600 transition-all shadow-lg active:scale-90 group-item-btn">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
                         </button>
                     </div>
                 </div>
             `).join('');
+        updateCartUI();
     }
+
+    function addToCart(event, id) {
+        const product = allProducts.find(p => p.id === id);
+        if (product) {
+            cart.push(product);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartUI();
+            renderCart();
+
+            // Визуальный отклик кнопки
+            const btn = event.currentTarget;
+            const oldContent = btn.innerHTML;
+            btn.innerHTML = `<svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
+            btn.classList.replace('bg-slate-900', 'bg-emerald-500');
+
+            // Показ тоста
+            showToast();
+
+            setTimeout(() => {
+                btn.innerHTML = oldContent;
+                btn.classList.replace('bg-emerald-500', 'bg-slate-900');
+            }, 1000);
+
+            // Авто-открытие при первом добавлении
+            if (cart.length === 1) {
+                setTimeout(() => toggleCart(true), 500);
+            }
+        }
+    }
+
+    function showToast() {
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartUI();
+        renderCart();
+    }
+
+    function updateCartUI() {
+        const count = cart.length;
+        document.getElementById('nav-cart-count').innerText = count;
+        document.getElementById('cart-count-float').innerText = count;
+    }
+
+    function toggleCart(show) {
+        const drawer = document.getElementById('cart-drawer');
+        const overlay = document.getElementById('cart-overlay');
+        if (show) {
+            drawer.style.transform = "translateX(0)";
+            overlay.classList.remove('hidden');
+            renderCart();
+        } else {
+            drawer.style.transform = "translateX(100%)";
+            overlay.classList.add('hidden');
+        }
+    }
+
+    function renderCart() {
+        const container = document.getElementById('cart-items');
+        if (cart.length === 0) {
+            container.innerHTML = `
+                    <div class="text-center py-20 space-y-4">
+                        <div class="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto text-slate-200">
+                             <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                        </div>
+                        <p class="text-slate-400 font-bold">Корзина пуста</p>
+                    </div>
+                `;
+            document.getElementById('cart-total').innerText = '0 ₸';
+            return;
+        }
+        let total = 0;
+        container.innerHTML = cart.map((item, idx) => {
+            total += item.price;
+            return `
+                    <div class="flex items-center gap-6 p-4 rounded-3xl hover:bg-slate-50 transition-colors animate-in slide-in-from-right-4 duration-300">
+                        <img src="${item.image_url}" class="w-16 h-16 object-cover rounded-2xl shadow-sm">
+                        <div class="flex-grow">
+                            <h4 class="font-black text-slate-900 text-sm line-clamp-1">${item.name}</h4>
+                            <p class="text-indigo-600 font-black text-lg mt-1">${item.price.toLocaleString()} ₸</p>
+                        </div>
+                        <button onclick="removeFromCart(${idx})" class="text-rose-200 hover:text-rose-500 transition-colors p-2">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </div>
+                `;
+        }).join('');
+        document.getElementById('cart-total').innerText = total.toLocaleString() + ' ₸';
+    }
+
+    function showPayment() {
+        if (cart.length === 0) return alert('Добавьте товары в корзину');
+        document.getElementById('payment-modal').classList.remove('hidden');
+    }
+
+    function closePayment() {
+        document.getElementById('payment-modal').classList.add('hidden');
+    }
+
+    // Интерактив карты
+    const cardInput = document.getElementById('card-num');
+    const cardDisplay = document.getElementById('display-card-number');
+
+    cardInput.oninput = (e) => {
+        let v = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+        let parts = [];
+        for (let i = 0, len = v.length; i < len; i += 4) {
+            parts.push(v.substring(i, i + 4));
+        }
+        if (parts.length) e.target.value = parts.join(' ');
+        cardDisplay.innerText = e.target.value || '•••• •••• •••• ••••';
+    };
+
+    document.getElementById('payment-form').onsubmit = (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button');
+        btn.disabled = true;
+        btn.innerText = 'Обработка...';
+
+        setTimeout(() => {
+            alert('Успешно! Ваш заказ оплачен и передан в службу доставки.');
+            cart = [];
+            localStorage.setItem('cart', '[]');
+            updateCartUI();
+            closePayment();
+            toggleCart(false);
+            btn.disabled = false;
+            btn.innerText = 'Подтвердить оплату';
+        }, 1500);
+    };
+
     loadProds('');
 </script>
 </body>
