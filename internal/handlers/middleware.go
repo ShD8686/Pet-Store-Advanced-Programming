@@ -29,15 +29,11 @@ func CommonHeadersMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-// AuthMiddleware защищает критические API
 func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Простая логика: если это POST/DELETE, проверяем роль в заголовке
-		// В реальном приложении здесь проверяется JWT токен
 		if r.Method == http.MethodPost || r.Method == http.MethodDelete {
 			role := r.Header.Get("X-User-Role")
 			if role == "" {
-				// Для демо-версии мы позволяем запросы, но в реальности тут была бы ошибка 401
 				log.Println("Warning: Unauthenticated access to sensitive API")
 			}
 		}

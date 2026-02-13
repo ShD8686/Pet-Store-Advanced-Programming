@@ -53,7 +53,6 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Скрываем пароль перед отправкой на фронтенд
 	user.Password = ""
 	json.NewEncoder(w).Encode(user)
 }
@@ -70,7 +69,6 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Хешируем пароль перед сохранением
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
 		http.Error(w, "Error processing password", http.StatusInternalServerError)
@@ -78,7 +76,6 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	}
 	u.Password = string(hashedPassword)
 
-	// Автоматическое определение админа по email
 	if strings.Contains(strings.ToLower(u.Email), "admin") {
 		u.Role = "admin"
 	} else {

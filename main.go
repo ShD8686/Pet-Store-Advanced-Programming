@@ -29,8 +29,6 @@ func main() {
 
 	pageHandler := handlers.NewPageHandler()
 
-	// Вспомогательная функция для применения всех Middleware сразу
-	// Это уберет предупреждение "no usage"
 	applyMiddleware := func(h http.HandlerFunc) http.HandlerFunc {
 		return handlers.LoggerMiddleware(
 			handlers.CommonHeadersMiddleware(
@@ -39,13 +37,11 @@ func main() {
 		)
 	}
 
-	// API News
 	http.HandleFunc("/api/news", applyMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		news, _ := petRepo.GetNews()
 		json.NewEncoder(w).Encode(news)
 	}))
 
-	// API Products
 	http.HandleFunc("/api/products", applyMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			var p models.Product
@@ -66,7 +62,6 @@ func main() {
 		}
 	}))
 
-	// API Appointments
 	http.HandleFunc("/api/appointments", applyMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			var a models.Appointment
@@ -80,7 +75,6 @@ func main() {
 		}
 	}))
 
-	// Стандартные API
 	http.HandleFunc("/api/pets", applyMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodDelete {
 			id, _ := strconv.Atoi(r.URL.Query().Get("id"))
@@ -115,7 +109,6 @@ func main() {
 	http.HandleFunc("/api/login", handlers.CommonHeadersMiddleware(authHandler.Login))
 	http.HandleFunc("/api/register", handlers.CommonHeadersMiddleware(authHandler.Register))
 
-	// Pages (Для страниц логгер полезен, но AuthMiddleware не нужен, страницы публичны)
 	http.HandleFunc("/", pageHandler.IndexPage)
 	http.HandleFunc("/info", pageHandler.InfoPage)
 	http.HandleFunc("/stats", pageHandler.StatsPage)

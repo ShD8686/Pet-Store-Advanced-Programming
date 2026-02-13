@@ -242,7 +242,6 @@ func (r *SQLitePetRepository) AddPet(p models.Pet) error {
 
 func (r *SQLitePetRepository) Seed() error {
 	var count int
-	// Seed Products
 	r.DB.QueryRow("SELECT COUNT(*) FROM products").Scan(&count)
 	if count == 0 {
 		prods := []models.Product{
@@ -255,7 +254,6 @@ func (r *SQLitePetRepository) Seed() error {
 		}
 	}
 
-	// Seed News
 	r.DB.QueryRow("SELECT COUNT(*) FROM news").Scan(&count)
 	if count == 0 {
 		newsItems := []models.News{
@@ -268,7 +266,6 @@ func (r *SQLitePetRepository) Seed() error {
 		}
 	}
 
-	// Seed Admin with hashed password
 	r.DB.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
 	if count == 0 {
 		hashed, _ := bcrypt.GenerateFromPassword([]byte("admin"), bcrypt.DefaultCost)

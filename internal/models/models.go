@@ -9,7 +9,7 @@ type Pet struct {
 	Type       string `json:"type"`
 	Gender     string `json:"gender"`
 	Breed      string `json:"breed"`
-	Status     string `json:"status"` // 'lost', 'found', 'registered'
+	Status     string `json:"status"`
 	ImageURL   string `json:"image_url"`
 }
 
@@ -34,13 +34,13 @@ type Appointment struct {
 	Date      string `json:"date"`
 	Time      string `json:"time"`
 	Reason    string `json:"reason"`
-	Status    string `json:"status"` // 'pending', 'confirmed'
+	Status    string `json:"status"`
 }
 
 type Product struct {
 	ID          int     `json:"id"`
 	Name        string  `json:"name"`
-	Category    string  `json:"category"` // 'food', 'medicine', 'toy'
+	Category    string  `json:"category"`
 	Price       float64 `json:"price"`
 	ImageURL    string  `json:"image_url"`
 	Description string  `json:"description"`
