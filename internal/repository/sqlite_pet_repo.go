@@ -4,6 +4,8 @@ import (
 	"Pet_Store/internal/models"
 	"database/sql"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type SQLitePetRepository struct {
@@ -266,10 +268,11 @@ func (r *SQLitePetRepository) Seed() error {
 		}
 	}
 
-	// Seed Admin
+	// Seed Admin with hashed password
 	r.DB.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
 	if count == 0 {
-		r.CreateUser(models.User{Email: "admin@tanba.kz", Password: "admin", Role: "admin"})
+		hashed, _ := bcrypt.GenerateFromPassword([]byte("admin"), bcrypt.DefaultCost)
+		r.CreateUser(models.User{Email: "admin@tanba.kz", Password: string(hashed), Role: "admin"})
 	}
 	return nil
 }

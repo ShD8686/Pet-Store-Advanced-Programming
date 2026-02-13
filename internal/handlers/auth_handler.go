@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"strings"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthHandler struct {
@@ -39,11 +41,20 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if user == nil || user.Password != creds.Password {
+	if user == nil {
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
 	}
 
+	// Сравниваем введенный пароль с хешем из базы данных
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(creds.Password))
+	if err != nil {
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
+	}
+
+	// Скрываем пароль перед отправкой на фронтенд
+	user.Password = ""
 	json.NewEncoder(w).Encode(user)
 }
 
@@ -59,6 +70,14 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Хешируем пароль перед сохранением
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+	if err != nil {
+		http.Error(w, "Error processing password", http.StatusInternalServerError)
+		return
+	}
+	u.Password = string(hashedPassword)
+
 	// Автоматическое определение админа по email
 	if strings.Contains(strings.ToLower(u.Email), "admin") {
 		u.Role = "admin"
@@ -68,7 +87,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 	if err := h.Repo.CreateUser(u); err != nil {
 		log.Printf("Registration error: %v", err)
-		http.Error(w, "User already exists or DB error: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "User already exists or DB error", http.StatusInternalServerError)
 		return
 	}
 

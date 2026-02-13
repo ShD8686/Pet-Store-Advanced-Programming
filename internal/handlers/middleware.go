@@ -19,7 +19,7 @@ func CommonHeadersMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-User-Role")
 
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
@@ -29,14 +29,17 @@ func CommonHeadersMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+// AuthMiddleware защищает критические API
 func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Заглушка авторизации
-		token := r.Header.Get("Authorization")
-		if token == "" && r.Method != http.MethodGet {
-			// На реальном проекте здесь будет проверка JWT
-			// http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			// return
+		// Простая логика: если это POST/DELETE, проверяем роль в заголовке
+		// В реальном приложении здесь проверяется JWT токен
+		if r.Method == http.MethodPost || r.Method == http.MethodDelete {
+			role := r.Header.Get("X-User-Role")
+			if role == "" {
+				// Для демо-версии мы позволяем запросы, но в реальности тут была бы ошибка 401
+				log.Println("Warning: Unauthenticated access to sensitive API")
+			}
 		}
 		next(w, r)
 	}

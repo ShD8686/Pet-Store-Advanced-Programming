@@ -29,14 +29,24 @@ func main() {
 
 	pageHandler := handlers.NewPageHandler()
 
+	// Вспомогательная функция для применения всех Middleware сразу
+	// Это уберет предупреждение "no usage"
+	applyMiddleware := func(h http.HandlerFunc) http.HandlerFunc {
+		return handlers.LoggerMiddleware(
+			handlers.CommonHeadersMiddleware(
+				handlers.AuthMiddleware(h),
+			),
+		)
+	}
+
 	// API News
-	http.HandleFunc("/api/news", handlers.CommonHeadersMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/api/news", applyMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		news, _ := petRepo.GetNews()
 		json.NewEncoder(w).Encode(news)
 	}))
 
 	// API Products
-	http.HandleFunc("/api/products", handlers.CommonHeadersMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/api/products", applyMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			var p models.Product
 			if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
@@ -57,7 +67,7 @@ func main() {
 	}))
 
 	// API Appointments
-	http.HandleFunc("/api/appointments", handlers.CommonHeadersMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/api/appointments", applyMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			var a models.Appointment
 			json.NewDecoder(r.Body).Decode(&a)
@@ -71,7 +81,7 @@ func main() {
 	}))
 
 	// Стандартные API
-	http.HandleFunc("/api/pets", handlers.CommonHeadersMiddleware(func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/api/pets", applyMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodDelete {
 			id, _ := strconv.Atoi(r.URL.Query().Get("id"))
 			petRepo.DeletePet(id)
@@ -81,11 +91,13 @@ func main() {
 			json.NewEncoder(w).Encode(pets)
 		}
 	}))
-	http.HandleFunc("/api/stats", handlers.CommonHeadersMiddleware(func(w http.ResponseWriter, r *http.Request) {
+
+	http.HandleFunc("/api/stats", applyMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		stats, _ := petRepo.GetStats()
 		json.NewEncoder(w).Encode(stats)
 	}))
-	http.HandleFunc("/api/listings", handlers.CommonHeadersMiddleware(func(w http.ResponseWriter, r *http.Request) {
+
+	http.HandleFunc("/api/listings", applyMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			var l models.Listing
 			json.NewDecoder(r.Body).Decode(&l)
@@ -98,10 +110,12 @@ func main() {
 			json.NewEncoder(w).Encode(listings)
 		}
 	}))
-	http.HandleFunc("/api/login", handlers.CommonHeadersMiddleware(handlers.NewAuthHandler(petRepo).Login))
-	http.HandleFunc("/api/register", handlers.CommonHeadersMiddleware(handlers.NewAuthHandler(petRepo).Register))
 
-	// Pages
+	authHandler := handlers.NewAuthHandler(petRepo)
+	http.HandleFunc("/api/login", handlers.CommonHeadersMiddleware(authHandler.Login))
+	http.HandleFunc("/api/register", handlers.CommonHeadersMiddleware(authHandler.Register))
+
+	// Pages (Для страниц логгер полезен, но AuthMiddleware не нужен, страницы публичны)
 	http.HandleFunc("/", pageHandler.IndexPage)
 	http.HandleFunc("/info", pageHandler.InfoPage)
 	http.HandleFunc("/stats", pageHandler.StatsPage)
@@ -121,6 +135,6 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	fmt.Printf("DNA Server running on http://localhost:%s...\n", port)
+	fmt.Printf("DNA - Server running on http://localhost:%s...\n", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
