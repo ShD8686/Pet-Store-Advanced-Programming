@@ -29,6 +29,12 @@ func main() {
 
 	pageHandler := handlers.NewPageHandler()
 
+	// API News
+	http.HandleFunc("/api/news", handlers.CommonHeadersMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		news, _ := petRepo.GetNews()
+		json.NewEncoder(w).Encode(news)
+	}))
+
 	// API Products
 	http.HandleFunc("/api/products", handlers.CommonHeadersMiddleware(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
@@ -37,7 +43,6 @@ func main() {
 				http.Error(w, "Invalid input", http.StatusBadRequest)
 				return
 			}
-			// В реальности здесь должна быть проверка сессии/токена на роль admin
 			if err := petRepo.AddProduct(p); err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
@@ -116,6 +121,6 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	fmt.Printf("DNA - Server running on http://localhost:%s\n", port)
+	fmt.Printf("DNA Server running on http://localhost:%s...\n", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

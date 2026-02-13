@@ -46,6 +46,15 @@ type Product struct {
 	Description string  `json:"description"`
 }
 
+type News struct {
+	ID       int    `json:"id"`
+	Title    string `json:"title"`
+	Category string `json:"category"`
+	Date     string `json:"date"`
+	ImageURL string `json:"image_url"`
+	Summary  string `json:"summary"`
+}
+
 type Stats struct {
 	TotalRegistered int    `json:"total"`
 	TotalCats       int    `json:"cats"`

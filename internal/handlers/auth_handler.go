@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type AuthHandler struct {
@@ -58,14 +59,19 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u.Role = "user"
+	// Автоматическое определение админа по email
+	if strings.Contains(strings.ToLower(u.Email), "admin") {
+		u.Role = "admin"
+	} else {
+		u.Role = "user"
+	}
 
 	if err := h.Repo.CreateUser(u); err != nil {
-		log.Printf("Registration error: %v", err) // Видим реальную причину в терминале
+		log.Printf("Registration error: %v", err)
 		http.Error(w, "User already exists or DB error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]string{"message": "User created"})
+	json.NewEncoder(w).Encode(map[string]string{"message": "User created", "role": u.Role})
 }

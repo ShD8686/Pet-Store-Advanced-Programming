@@ -10,48 +10,64 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
         .btn-primary { background-color: #536DFE; transition: all 0.2s; }
-        .card { background: white; border-radius: 2rem; border: 1px solid #E2E8F0; transition: all 0.3s; }
-        .card:hover { box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
+        .card { background: white; border-radius: 2rem; border: 1px solid #E2E8F0; transition: all 0.3s; overflow: hidden; }
+        .card:hover { box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); transform: translateY(-5px); }
+        .nav-link { font-size: 0.875rem; font-weight: 700; transition: color 0.2s; }
+        .nav-link.active { color: #536DFE; }
+        .nav-link:not(.active) { color: #94A3B8; }
+        .nav-link:hover { color: #536DFE; }
     </style>
 </head>
 <body>
 <nav class="bg-white border-b sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-        <div class="flex items-center gap-8">
+        <div class="flex items-center gap-12">
             <a href="/" class="flex items-center gap-2">
-                <div class="bg-slate-800 p-1.5 rounded-full"><svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg></div>
-                <span class="text-2xl font-black text-slate-800 tracking-tighter">DNA</span>
+                <div class="bg-slate-900 p-1.5 rounded-full"><svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg></div>
+                <span class="text-2xl font-black text-slate-900 tracking-tighter">DNA</span>
             </a>
-            <div class="hidden md:flex items-center gap-6">
-                <a href="/" class="text-sm font-bold text-indigo-600">Главная</a>
-                <a href="/vet" class="text-sm font-bold text-slate-500 hover:text-indigo-600">Ветеринария</a>
-                <a href="/shop" class="text-sm font-bold text-slate-500 hover:text-indigo-600">Магазин</a>
-                <a href="/stats" class="text-sm font-bold text-slate-500 hover:text-indigo-600">Статистика</a>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="/" class="nav-link active">Главная</a>
+                <a href="/vet" class="nav-link">Ветеринария</a>
+                <a href="/shop" class="nav-link">Магазин</a>
+                <a href="/stats" class="nav-link">Статистика</a>
+                <a href="/info" class="nav-link">Информация</a>
             </div>
         </div>
         <div class="flex items-center gap-4">
-            <a href="/create-ad" id="create-ad-btn" class="hidden bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm">+ Объявление</a>
-            <button onclick="handleAuthClick()" id="login-btn" class="btn-primary text-white px-6 py-2.5 rounded-xl font-bold text-sm">Войти</button>
+            <a href="/create-ad" id="create-ad-btn" class="hidden bg-[#10B981] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-emerald-100">+ Объявление</a>
+            <button onclick="handleAuthClick()" id="login-btn" class="btn-primary text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-indigo-100">Войти</button>
         </div>
     </div>
 </nav>
 
-<main class="max-w-7xl mx-auto px-6 py-12 space-y-16">
+<main class="max-w-7xl mx-auto px-6 py-12 space-y-24">
     <section class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
         <div class="space-y-6">
-            <h1 class="text-6xl font-black text-slate-900 leading-tight">Забота о питомце <br><span class="text-indigo-600">в один клик.</span></h1>
-            <p class="text-slate-500 text-lg">Единая платформа для регистрации, поиска, лечения и покупок для ваших четвероногих друзей.</p>
+            <h1 class="text-7xl font-black text-slate-900 leading-tight">Забота о питомце <br><span class="text-indigo-600">в один клик.</span></h1>
+            <p class="text-slate-500 text-lg max-w-md">Единая платформа для регистрации, поиска, лечения и покупок для ваших четвероногих друзей.</p>
             <div class="flex gap-4">
-                <a href="/vet" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black text-sm shadow-lg shadow-indigo-200">Записаться к врачу</a>
-                <a href="/shop" class="bg-white border-2 border-slate-100 text-slate-800 px-8 py-4 rounded-2xl font-black text-sm">В магазин</a>
+                <a href="/vet" class="bg-indigo-600 text-white px-8 py-4 rounded-2xl font-black text-sm shadow-xl shadow-indigo-200">Записаться к врачу</a>
+                <a href="/shop" class="bg-white border-2 border-slate-50 text-slate-800 px-8 py-4 rounded-2xl font-black text-sm hover:border-slate-200 transition-colors">В магазин</a>
             </div>
         </div>
-        <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=800&q=80" class="rounded-[3rem] shadow-2xl">
+        <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=800&q=80" class="rounded-[4rem] shadow-2xl">
     </section>
 
     <section class="space-y-8">
-        <h2 class="text-3xl font-black text-slate-800">Последние объявления</h2>
+        <div class="flex justify-between items-end">
+            <h2 class="text-4xl font-black text-slate-900">Последние объявления</h2>
+            <a href="/create-ad" class="text-indigo-600 font-bold text-sm hover:underline">Смотреть все →</a>
+        </div>
         <div id="listings-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+    </section>
+
+    <section class="space-y-10 pb-20">
+        <div class="space-y-2">
+            <h2 class="text-4xl font-black text-slate-900">Новости и события</h2>
+            <p class="text-slate-400 font-bold uppercase text-[10px] tracking-[0.2em]">Будьте в курсе жизни сообщества</p>
+        </div>
+        <div id="news-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
     </section>
 </main>
 
@@ -68,18 +84,35 @@
             document.getElementById('login-btn').innerText = user.email.split('@')[0];
         }
     }
-    async function load() {
+    async function loadListings() {
         const res = await fetch('/api/listings');
         const data = await res.json();
-        document.getElementById('listings-grid').innerHTML = data.map(l => `
+        document.getElementById('listings-grid').innerHTML = data.slice(0, 4).map(l => `
                 <div class="card p-4">
-                    <img src="${l.photo_url}" class="w-full aspect-square object-cover rounded-xl mb-4">
-                    <h3 class="font-black text-slate-800">${l.type.toUpperCase()}</h3>
-                    <p class="text-sm text-slate-400 mt-2">${l.description}</p>
+                    <img src="${l.photo_url}" class="w-full aspect-square object-cover rounded-[1.5rem] mb-4">
+                    <h3 class="font-black text-slate-900">${l.type.toUpperCase()}</h3>
+                    <p class="text-sm text-slate-500 mt-2 line-clamp-2">${l.description}</p>
                 </div>
             `).join('');
     }
-    updateUI(); load();
+    async function loadNews() {
+        const res = await fetch('/api/news');
+        const data = await res.json();
+        document.getElementById('news-grid').innerHTML = data.map(n => `
+                <div class="card p-0 flex flex-col h-full bg-white border-none shadow-sm hover:shadow-xl transition-all">
+                    <div class="relative h-56 overflow-hidden">
+                        <img src="${n.image_url}" class="w-full h-full object-cover">
+                        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-4 py-1.5 rounded-full text-[10px] font-black text-indigo-600 uppercase tracking-widest">${n.category}</div>
+                    </div>
+                    <div class="p-8 flex flex-col flex-grow space-y-4">
+                        <div class="text-slate-400 text-[10px] font-black uppercase tracking-tighter">${n.date}</div>
+                        <h3 class="text-2xl font-black text-slate-900 leading-tight">${n.title}</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed">${n.summary}</p>
+                    </div>
+                </div>
+            `).join('');
+    }
+    updateUI(); loadListings(); loadNews();
 </script>
 </body>
 </html>

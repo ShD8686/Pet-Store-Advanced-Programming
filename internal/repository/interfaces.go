@@ -20,4 +20,6 @@ type PetRepository interface {
 	AddProduct(p models.Product) error
 	CreateAppointment(a models.Appointment) error
 	GetAppointmentsByEmail(email string) ([]models.Appointment, error)
+
+	GetNews() ([]models.News, error)
 }

@@ -67,10 +67,35 @@ func (r *SQLitePetRepository) InitSchema() error {
 		time TEXT,
 		reason TEXT,
 		status TEXT DEFAULT 'pending'
+	);
+
+	CREATE TABLE IF NOT EXISTS news (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		title TEXT NOT NULL,
+		category TEXT,
+		date TEXT,
+		image_url TEXT,
+		summary TEXT
 	);`
 
 	_, err := r.DB.Exec(schema)
 	return err
+}
+
+func (r *SQLitePetRepository) GetNews() ([]models.News, error) {
+	rows, err := r.DB.Query("SELECT id, title, category, date, image_url, summary FROM news ORDER BY id DESC")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var news []models.News
+	for rows.Next() {
+		var n models.News
+		rows.Scan(&n.ID, &n.Title, &n.Category, &n.Date, &n.ImageURL, &n.Summary)
+		news = append(news, n)
+	}
+	return news, nil
 }
 
 func (r *SQLitePetRepository) GetProducts(category string) ([]models.Product, error) {
@@ -215,6 +240,7 @@ func (r *SQLitePetRepository) AddPet(p models.Pet) error {
 
 func (r *SQLitePetRepository) Seed() error {
 	var count int
+	// Seed Products
 	r.DB.QueryRow("SELECT COUNT(*) FROM products").Scan(&count)
 	if count == 0 {
 		prods := []models.Product{
@@ -227,6 +253,20 @@ func (r *SQLitePetRepository) Seed() error {
 		}
 	}
 
+	// Seed News
+	r.DB.QueryRow("SELECT COUNT(*) FROM news").Scan(&count)
+	if count == 0 {
+		newsItems := []models.News{
+			{Title: "Всеобщая вакцинация в Астане", Category: "События", Date: "25 Янв", ImageURL: "https://images.unsplash.com/photo-1628033033904-91496a793f77?auto=format&fit=crop&w=800&q=80", Summary: "Запущена программа бесплатной вакцинации против бешенства."},
+			{Title: "Как выбрать правильный корм?", Category: "Советы", Date: "12 Янв", ImageURL: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=800&q=80", Summary: "Гид по выбору питания для щенков и взрослых собак."},
+			{Title: "Открытие новой клиники в Алматы", Category: "Новости", Date: "05 Янв", ImageURL: "https://images.unsplash.com/photo-1516733725897-1aa73b87c8e8?auto=format&fit=crop&w=800&q=80", Summary: "Современный центр ветеринарии открыл свои двери."},
+		}
+		for _, n := range newsItems {
+			r.DB.Exec("INSERT INTO news (title, category, date, image_url, summary) VALUES (?, ?, ?, ?, ?)", n.Title, n.Category, n.Date, n.ImageURL, n.Summary)
+		}
+	}
+
+	// Seed Admin
 	r.DB.QueryRow("SELECT COUNT(*) FROM users").Scan(&count)
 	if count == 0 {
 		r.CreateUser(models.User{Email: "admin@tanba.kz", Password: "admin", Role: "admin"})
